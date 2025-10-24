@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Radio Logic</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 600px; margin: 50px auto; padding: 20px; }
+    .form-field { margin: 20px 0; padding: 15px; border: 1px solid #ddd; border-radius: 5px; }
+    label { display: block; margin-bottom: 10px; font-weight: bold; }
+    input[type="radio"] { margin-right: 10px; }
+    input[type="text"], select { width: 100%; padding: 8px; margin-top: 5px; }
+    #account-rep-wrapper, #ein-wrapper { background-color: #f0f9ff; }
+  </style>
+</head>
+<body>
+  <h1>Radio Button Logic Test</h1>
+  <p>Both "HBI Account Rep" and "EIN Number" should be <strong>hidden by default</strong>.</p>
+  <p>When you click "Yes", both should appear. When you click "No", both should hide.</p>
+  
+  <form>
+    <div class="form-field">
+      <label>Do you have an existing account with HBI? *</label>
+      <label>
+        <input type="radio" name="has-account" id="has-account-yes" value="Yes" />
+        Yes
+      </label>
+      <label>
+        <input type="radio" name="has-account" id="has-account-no" value="No" />
+        No
+      </label>
+    </div>
+
+    <div id="account-rep-wrapper" class="form-field">
+      <label for="HBI-Rep">HBI Account Rep *</label>
+      <select name="HBI-Rep" id="HBI-Rep">
+        <option value="">Select</option>
+        <option value="Aaron">Aaron</option>
+        <option value="Brad">Brad</option>
+        <option value="Jessica">Jessica</option>
+      </select>
+    </div>
+
+    <div id="ein-wrapper" class="form-field">
+      <label for="EIN-Number">EIN Number *</label>
+      <input type="text" name="EIN-Number" id="EIN-Number" />
+    </div>
+
+    <div class="form-field">
+      <label for="name">Full Name *</label>
+      <input type="text" name="name" id="name" />
+    </div>
+  </form>
+
+  <div style="margin-top: 30px; padding: 20px; background: #fef3c7; border-radius: 5px;">
+    <h3>Debug Console:</h3>
+    <p>Open browser console (F12) to see Roolify logs</p>
+    <p>Check for:</p>
+    <ul>
+      <li>"[Roolify] Environment detected: Live Site"</li>
+      <li>"[Roolify] Hiding 2 target elements initially on live site"</li>
+      <li>"[Roolify] Initially hiding element: account-rep-wrapper"</li>
+      <li>"[Roolify] Initially hiding element: ein-wrapper"</li>
+    </ul>
+  </div>
+
+  <!-- Roolify Universal Script -->
+  <script src="http://localhost:3001/api/script/serve/68bc42f58e22a62ce5c282e0"></script>
+</body>
+</html>
+
+
+

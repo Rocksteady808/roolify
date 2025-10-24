@@ -1,0 +1,11 @@
+# Netlify redirects for Next.js app
+
+# API routes - pass through to Next.js
+/api/* /api/:splat 200
+
+# Static files
+/_next/static/* /_next/static/:splat 200
+
+# All other routes - serve index.html for client-side routing
+/* /index.html 200
+

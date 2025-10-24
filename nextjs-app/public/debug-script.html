@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roolify Script Debug</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .info-section { margin: 20px 0; padding: 20px; background: #f0f0f0; }
+        select, input { margin: 10px; padding: 5px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <h1>Roolify Script Debug Page</h1>
+    
+    <div class="form-section">
+        <h2>State Form</h2>
+        <form id="state-form">
+            <label for="Select-a-State">Select a State:</label>
+            <select id="Select-a-State" name="Select-a-State">
+                <option value="">Select a State</option>
+                <option value="CA">CA</option>
+                <option value="NY">NY</option>
+                <option value="TX">TX</option>
+            </select>
+        </form>
+    </div>
+    
+    <div class="info-section">
+        <div id="california-info" class="hidden">
+            <h3>California Information</h3>
+            <p>This is California-specific content that should show when CA is selected.</p>
+        </div>
+        
+        <div id="newyork-info" class="hidden">
+            <h3>New York Information</h3>
+            <p>This is New York-specific content that should show when NY is selected.</p>
+        </div>
+        
+        <div id="texas-info" class="hidden">
+            <h3>Texas Information</h3>
+            <p>This is Texas-specific content that should show when TX is selected.</p>
+        </div>
+    </div>
+    
+    <div class="form-section">
+        <h2>Debug Information</h2>
+        <p>Open the browser console to see Roolify script logs.</p>
+        <p>Test the dropdown above - it should show/hide the info sections based on selection.</p>
+    </div>
+
+    <!-- Load the Roolify script -->
+    <script src="http://localhost:3001/api/script/serve/68bc42f58e22a62ce5c282e0"></script>
+</body>
+</html>
+
+

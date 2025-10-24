@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Roolify Script Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        select, input {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+        }
+        .info-section {
+            background: #f0f8ff;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 20px;
+            border: 1px solid #b0d4f1;
+        }
+        .hidden {
+            display: none;
+        }
+        .roolify-controlled {
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <h1>Roolify Universal Script Test</h1>
+    <p>This page demonstrates how the Roolify script works with form logic.</p>
+    
+    <form>
+        <div class="form-group">
+            <label for="state-select">Select a State:</label>
+            <select id="state-select" name="state">
+                <option value="">Choose a state...</option>
+                <option value="CA">California</option>
+                <option value="NY">New York</option>
+                <option value="TX">Texas</option>
+            </select>
+        </div>
+        
+        <div class="form-group">
+            <label for="country-select">Select a Country:</label>
+            <select id="country-select" name="country">
+                <option value="">Choose a country...</option>
+                <option value="US">United States</option>
+                <option value="UK">United Kingdom</option>
+                <option value="CA">Canada</option>
+            </select>
+        </div>
+        
+        <!-- These sections will be controlled by Roolify -->
+        <div id="california-info" class="info-section roolify-controlled">
+            <h3>California Information</h3>
+            <p>Welcome to California! Here's some information about the Golden State.</p>
+        </div>
+        
+        <div id="newyork-info" class="info-section roolify-controlled">
+            <h3>New York Information</h3>
+            <p>Welcome to New York! Here's some information about the Empire State.</p>
+        </div>
+        
+        <div id="texas-info" class="info-section roolify-controlled">
+            <h3>Texas Information</h3>
+            <p>Welcome to Texas! Here's some information about the Lone Star State.</p>
+        </div>
+    </form>
+    
+    <div style="margin-top: 30px; padding: 20px; background: #f9f9f9; border-radius: 5px;">
+        <h3>How it works:</h3>
+        <ol>
+            <li><strong>In Webflow Designer:</strong> All elements remain visible for easy editing</li>
+            <li><strong>On Live Site:</strong> Elements start hidden and only show when conditions are met</li>
+            <li><strong>Dynamic Logic:</strong> When you select a state, the corresponding info section appears</li>
+        </ol>
+    </div>
+    
+    <!-- Load the Roolify script -->
+    <script src="http://localhost:3000/api/script/serve/68bc42f58e22a62ce5c282e0"></script>
+</body>
+</html>
+
+
+

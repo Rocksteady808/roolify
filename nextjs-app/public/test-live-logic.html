@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Live Logic</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 20px; }
+        .form-section { margin: 20px 0; padding: 20px; border: 1px solid #ccc; }
+        .info-section { margin: 20px 0; padding: 20px; background: #f0f0f0; }
+        select, input { margin: 10px; padding: 5px; }
+        .hidden { display: none; }
+    </style>
+</head>
+<body>
+    <h1>Test Live Logic - Matching Your Live Site</h1>
+    
+    <div class="form-section">
+        <h2>State Form (Exact Match to Live Site)</h2>
+        <form id="wf-form-State-Form-2" name="wf-form-State-Form-2" data-name="State Form">
+            <div class="form-field">
+                <label for="full-name">Full name</label>
+                <input id="full-name" name="name" type="text" />
+            </div>
+            
+            <label for="">Select a State</label>
+            <div class="form-field">
+                <select id="Select-a-State" name="Select-a-State" data-name="Select a State">
+                    <option value="">Select a State</option>
+                    <option value="CA">CA</option>
+                    <option value="NY">NY</option>
+                    <option value="TX">TX</option>
+                </select>
+            </div>
+            
+            <div id="california-info" class="form-field">
+                <div>California</div>
+            </div>
+            
+            <div id="newyork-info" class="form-field">
+                <div>New York</div>
+            </div>
+            
+            <div id="texas-info" class="form-field">
+                <div>Texas</div>
+            </div>
+        </form>
+    </div>
+    
+    <div class="form-section">
+        <h2>Debug Information</h2>
+        <p>Open the browser console to see Roolify script logs.</p>
+        <p>Test the dropdown above - it should show/hide the info sections based on selection.</p>
+        <p><strong>Expected behavior:</strong></p>
+        <ul>
+            <li>Select "CA" → Show "California"</li>
+            <li>Select "NY" → Show "New York"</li>
+            <li>Select "TX" → Show "Texas"</li>
+        </ul>
+    </div>
+
+    <!-- Load the Roolify script with correct port -->
+    <script src="http://localhost:3001/api/script/serve/68bc42f58e22a62ce5c282e0"></script>
+</body>
+</html>
+
+

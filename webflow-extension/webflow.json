@@ -1,0 +1,6 @@
+{
+  "name": "webflow-extension",
+  "publicDir": "public",
+  "size": "large",
+  "apiVersion": "2"
+}

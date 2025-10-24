@@ -1,0 +1,48 @@
+[
+  {
+    "id": "notif_test_country_form",
+    "formId": "wf-form-Country-Form",
+    "siteId": "68bc42f58e22a62ce5c282e0",
+    "formName": "Country Form",
+    "adminRoutes": [
+      {
+        "field": "Select a Country",
+        "operator": "equals",
+        "value": "United Kingdom",
+        "recipients": "aarontownsend6@gmail.com"
+      }
+    ],
+    "userRoutes": [],
+    "adminFallbackEmail": "aarontownsend6@gmail.com",
+    "userFallbackEmail": null,
+    "emailTemplate": "<!DOCTYPE html><html><body><h2>Test Form</h2><p>Country: {{Select a Country}}</p><p>UK Checkbox: {{United Kingdom:Yes, I selected UK}}</p></body></html>",
+    "adminSubject": "New Country Selection: {{Select a Country}}",
+    "userSubject": "Thank you for your submission",
+    "createdAt": "2025-01-12T05:00:00.000Z",
+    "updatedAt": "2025-10-14T12:18:21.152Z",
+    "customValue": "Yes, I selected {{field}}"
+  },
+  {
+    "formId": "68eb5d8e93a70150aa597325",
+    "siteId": "68eb5d6db0e34d2e3ed12c0a",
+    "formName": "State Form",
+    "adminRoutes": [
+      {
+        "field": "68ed67f0c6a2a668cdd6ba8d",
+        "operator": "equals",
+        "value": "California",
+        "recipients": "aarontownsend6@gmail.com"
+      }
+    ],
+    "userRoutes": [],
+    "adminFallbackEmail": "aarontownsend6@gmail.com",
+    "userFallbackEmail": null,
+    "emailTemplate": "<!doctype html>\n<html>\n  <head>\n    <meta charset=\"utf-8\" />\n    <meta name=\"viewport\" content=\"width=device-width,initial-scale=1\" />\n    <title>New State Form Submission</title>\n    <style>\n      body { font-family: Arial, sans-serif; margin: 0; padding: 20px; background-color: #f4f4f4; }\n      .card { background: white; border-radius: 8px; padding: 20px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; }\n      h2 { color: #333; margin-top: 0; }\n      .field-list { list-style: none; padding: 0; }\n      .field-list li { padding: 8px 0; border-bottom: 1px solid #eee; }\n      .field-list li:last-child { border-bottom: none; }\n      .footer { margin-top: 20px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666; }\n    </style>\n  </head>\n  <body>\n    <div class=\"card\">\n      <h2>New State Form Submission</h2>\n      <p>You have received a new submission from your website.</p>\n      <ul class=\"field-list\">\n        <li><strong>Full Name:</strong> {{Full Name}}</li>\n        <li><strong>Select a State:</strong> {{Select a State}}</li>\n        <li><strong>California:</strong> {{California}}</li>\n        <li><strong>New York:</strong> {{New York}}</li>\n        <li><strong>Texas:</strong> {{Texas}}</li>\n        <li><strong>Florida:</strong> {{Florida}}</li>\n      </ul>\n      <div class=\"footer\">\n        <p>This is an automated notification from your website.</p>\n      </div>\n    </div>\n  </body>\n</html>",
+    "adminSubject": "New Contact Form Submission",
+    "userSubject": "Thank you for your submission",
+    "id": "notif_1760444166956_yiepyg6vs",
+    "createdAt": "2025-10-14T12:16:06.956Z",
+    "updatedAt": "2025-10-14T13:14:09.001Z",
+    "customValue": null
+  }
+]

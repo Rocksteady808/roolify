@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Auto-Pairing - Roolify</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+            color: #555;
+        }
+        select, input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            font-size: 16px;
+            box-sizing: border-box;
+        }
+        select:focus, input:focus {
+            outline: none;
+            border-color: #4CAF50;
+        }
+        .info {
+            background: #e3f2fd;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 30px;
+        }
+        .info h3 {
+            margin-top: 0;
+            color: #1976d2;
+        }
+        .badge {
+            display: inline-block;
+            background: #4CAF50;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎯 Auto-Pairing Test <span class="badge">NEW</span></h1>
+        
+        <form>
+            <!-- Trigger Field -->
+            <div class="form-group">
+                <label for="Select-a-State">Select a State:</label>
+                <select id="Select-a-State" name="state">
+                    <option value="">Choose a state...</option>
+                    <option value="CA">California</option>
+                    <option value="NY">New York</option>
+                    <option value="TX">Texas</option>
+                </select>
+            </div>
+            
+            <!-- Hidden Fields (these will be auto-paired with their labels) -->
+            <div class="form-group">
+                <label for="Email">Email Address:</label>
+                <input id="Email" name="email" type="email" placeholder="your@email.com">
+            </div>
+            
+            <div class="form-group">
+                <label for="Phone">Phone Number:</label>
+                <input id="Phone" name="phone" type="tel" placeholder="(555) 123-4567">
+            </div>
+            
+            <div class="form-group">
+                <label for="Full-Name">Full Name:</label>
+                <input id="Full-Name" name="name" type="text" placeholder="John Doe">
+            </div>
+        </form>
+        
+        <div class="info">
+            <h3>📋 Test Instructions</h3>
+            <ol>
+                <li><strong>Check Console:</strong> Open browser DevTools (F12) and look at the Console tab</li>
+                <li><strong>Watch Auto-Pairing:</strong> You should see messages about elements being auto-paired</li>
+                <li><strong>Select a State:</strong> Choose "California" from the dropdown</li>
+                <li><strong>Observe:</strong> The Email, Phone, and Name fields should hide/show based on your rules</li>
+                <li><strong>Notice:</strong> Both the label AND the input hide/show together automatically!</li>
+            </ol>
+            
+            <h3>✨ What's Happening:</h3>
+            <ul>
+                <li>Script automatically adds <code>data-roolify</code> attributes to all form inputs</li>
+                <li>Script finds associated labels and adds the same attribute</li>
+                <li>When hiding/showing, it targets ALL elements with matching attribute</li>
+                <li><strong>No manual attribute work needed!</strong></li>
+            </ul>
+        </div>
+    </div>
+    
+    <!-- Load the Roolify script with auto-pairing -->
+    <script src="http://localhost:3000/api/script/serve/68bc42f58e22a62ce5c282e0"></script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+

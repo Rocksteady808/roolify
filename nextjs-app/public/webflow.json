@@ -1,0 +1,11 @@
+{
+  "name": "Roolify",
+  "version": "1.0.0",
+  "displayName": "Roolify - Form Logic Builder",
+  "description": "Add conditional logic to your Webflow forms",
+  "designer": {
+    "size": "large",
+    "url": "/dashboard"
+  }
+}
+

@@ -1,0 +1,422 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+body {
+  overflow-x: hidden;
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease-in-out;
+  }
+}
+
+@layer components {
+  /* Standard button utility - apply to interactive buttons (not icon-only) */
+  .btn {
+    @apply px-3 py-1.5 text-sm rounded inline-flex items-center justify-center;
+  }
+  .btn-primary {
+    @apply bg-indigo-600 text-white;
+  }
+  .btn-secondary {
+    @apply bg-gray-50 border text-gray-700;
+  }
+  
+  /* Global select styling for better visibility */
+  select {
+    @apply text-gray-800;
+  }
+  
+  /* Placeholder/empty select styling */
+  select:invalid,
+  select option[value=""],
+  select option[value=""]:first-child {
+    @apply text-gray-500;
+  }
+}
+
+/* Global placeholder styling for all input and select fields */
+/* Override Tailwind's preflight CSS which sets placeholder to gray-400 */
+/* Use higher specificity and more specific selectors */
+html input::placeholder,
+html textarea::placeholder,
+html select::placeholder {
+  color: #6b7280 !important; /* text-gray-500 - light but readable */
+  opacity: 1 !important;
+}
+
+/* Ensure consistent placeholder color across all browsers */
+html input::-webkit-input-placeholder,
+html textarea::-webkit-input-placeholder,
+html select::-webkit-input-placeholder {
+  color: #6b7280 !important; /* text-gray-500 - light but readable */
+  opacity: 1 !important;
+}
+
+html input::-moz-placeholder,
+html textarea::-moz-placeholder,
+html select::-moz-placeholder {
+  color: #6b7280 !important; /* text-gray-500 - light but readable */
+  opacity: 1 !important;
+}
+
+html input:-ms-input-placeholder,
+html textarea:-ms-input-placeholder,
+html select:-ms-input-placeholder {
+  color: #6b7280 !important; /* text-gray-500 - light but readable */
+  opacity: 1 !important;
+}
+
+/* Additional override for any remaining cases */
+* input::placeholder,
+* textarea::placeholder,
+* select::placeholder {
+  color: #6b7280 !important; /* text-gray-500 - light but readable */
+  opacity: 1 !important;
+}
+
+/* Force placeholder color with CSS custom property */
+input[style*="--placeholder-color"]::placeholder {
+  color: var(--placeholder-color, #6b7280) !important; /* text-gray-500 - light but readable */
+  opacity: 1 !important;
+}
+
+/* Nuclear option - target specific input types and IDs */
+input[type="password"]::placeholder,
+input[type="text"]::placeholder,
+input[type="email"]::placeholder,
+input[id="old-password"]::placeholder,
+input[id="new-password"]::placeholder,
+input[id="confirm-password"]::placeholder,
+input[id="name"]::placeholder,
+input[id="email"]::placeholder {
+  color: #6b7280 !important; /* text-gray-500 - light but readable */
+  opacity: 1 !important;
+}
+
+/* FINAL OVERRIDE - Must be at the end to override Tailwind preflight */
+body input::placeholder,
+body textarea::placeholder,
+body select::placeholder {
+  color: #6b7280 !important; /* text-gray-500 - light but readable */
+  opacity: 1 !important;
+}
+
+body input::-webkit-input-placeholder,
+body textarea::-webkit-input-placeholder,
+body select::-webkit-input-placeholder {
+  color: #6b7280 !important; /* text-gray-500 - light but readable */
+  opacity: 1 !important;
+}
+
+body input::-moz-placeholder,
+body textarea::-moz-placeholder,
+body select::-moz-placeholder {
+  color: #6b7280 !important; /* text-gray-500 - light but readable */
+  opacity: 1 !important;
+}
+
+/* ULTIMATE OVERRIDE - This should definitely work */
+input::placeholder {
+  color: #6b7280 !important; /* text-gray-500 - light but readable */
+  opacity: 1 !important;
+}
+
+input::-webkit-input-placeholder {
+  color: #6b7280 !important; /* text-gray-500 - light but readable */
+  opacity: 1 !important;
+}
+
+input::-moz-placeholder {
+  color: #6b7280 !important; /* text-gray-500 - light but readable */
+  opacity: 1 !important;
+}
+
+/* FINAL NUCLEAR OPTION - This MUST work */
+input[placeholder]::placeholder {
+  color: #6b7280 !important; /* text-gray-500 - light but readable */
+  opacity: 1 !important;
+}
+
+input[placeholder]::-webkit-input-placeholder {
+  color: #6b7280 !important; /* text-gray-500 - light but readable */
+  opacity: 1 !important;
+}
+
+input[placeholder]::-moz-placeholder {
+  color: #6b7280 !important; /* text-gray-500 - light but readable */
+  opacity: 1 !important;
+}
+
+/* Make input values darker and more readable */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="url"],
+input[type="search"],
+textarea,
+select {
+  color: #111827 !important; /* text-gray-900 - very dark for readability */
+}
+
+/* Ensure focus states maintain dark text */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+input[type="tel"]:focus,
+input[type="url"]:focus,
+input[type="search"]:focus,
+textarea:focus,
+select:focus {
+  color: #111827 !important; /* text-gray-900 - very dark for readability */
+}
+
+/* ============================================
+   Designer Extension Iframe Styles
+   ============================================ */
+
+/* Hide sidebar when running in iframe (Designer Extension) */
+body.in-iframe .sidebar,
+body.in-iframe aside[class*="col-span"] {
+  display: none !important;
+}
+
+/* Adjust main content when sidebar is hidden in iframe */
+body.in-iframe .main-content,
+body.in-iframe main[class*="col-span"] {
+  width: 100% !important;
+  margin-left: 0 !important;
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+/* Ensure full width layout in iframe */
+body.in-iframe .max-w-7xl {
+  max-width: 100% !important;
+}
+
+/* Hide main app's mobile header in iframe since extension has its own */
+body.in-iframe div[class*="xl:hidden"][class*="fixed"][class*="top-0"] {
+  display: none !important;
+}
+
+/* ============================================
+   Mobile Responsive Utilities
+   ============================================ */
+
+/* Prevent horizontal overflow globally */
+* {
+  min-width: 0;
+}
+
+/* Mobile-optimized select fields */
+select,
+.form-select {
+  min-width: 0;
+  width: 100%;
+}
+
+/* Touch-friendly buttons */
+button,
+.btn {
+  min-height: 44px;
+  min-width: 44px;
+  touch-action: manipulation;
+}
+
+@media (min-width: 640px) {
+  button,
+  .btn {
+    min-height: 40px;
+    min-width: auto;
+  }
+  
+  /* Flex-1 utility that works well with responsive layouts */
+  .sm-flex-1 {
+    flex: 1 1 0%;
+    min-width: 120px;
+  }
+}
+
+/* Mobile input fields should be full width */
+@media (max-width: 639px) {
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  input[type="tel"],
+  input[type="url"],
+  input[type="search"],
+  input[type="number"],
+  textarea,
+  select {
+    width: 100%;
+    font-size: 16px; /* Prevents iOS zoom on focus */
+  }
+}
+
+/* Mobile responsive utilities */
+@media (max-width: 1023px) {
+  /* Prevent body scroll when mobile menu is open */
+  body.mobile-menu-open {
+    overflow: hidden;
+  }
+  
+  /* Ensure mobile sidebar is above other content */
+  aside[class*="fixed"] {
+    box-shadow: 2px 0 8px rgba(0, 0, 0, 0.1);
+  }
+}
+
+/* Responsive text sizing */
+@media (max-width: 639px) {
+  h1 {
+    font-size: 1.5rem; /* text-2xl instead of text-3xl */
+    line-height: 2rem;
+  }
+  
+  .text-responsive-lg {
+    font-size: 1.125rem; /* text-lg instead of text-xl */
+  }
+}
+
+/* Responsive spacing */
+@media (max-width: 639px) {
+  .container-mobile {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Horizontal scroll for tables on mobile */
+@media (max-width: 767px) {
+  .table-container {
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  table {
+    min-width: 600px;
+  }
+}
+
+/* Footer mobile optimizations */
+@media (max-width: 639px) {
+  footer {
+    overflow-x: hidden;
+  }
+  
+  footer .grid {
+    gap: 1.5rem;
+  }
+  
+  footer h3,
+  footer h4 {
+    word-break: break-word;
+  }
+  
+  footer p,
+  footer a {
+    word-break: break-word;
+    overflow-wrap: break-word;
+  }
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 224.3 76.3% 48%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+

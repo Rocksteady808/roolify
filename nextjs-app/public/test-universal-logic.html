@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Universal Logic Test - Roolify</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      max-width: 800px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    h1 {
+      color: #333;
+      border-bottom: 3px solid #007bff;
+      padding-bottom: 10px;
+    }
+    .form-section {
+      background: white;
+      padding: 20px;
+      margin: 20px 0;
+      border-radius: 8px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .form-group {
+      margin: 15px 0;
+    }
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 5px;
+      color: #555;
+    }
+    input, select, textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    input[type="checkbox"],
+    input[type="radio"] {
+      width: auto;
+      margin-right: 8px;
+    }
+    button {
+      background: #007bff;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
+      margin-top: 10px;
+    }
+    button:hover {
+      background: #0056b3;
+    }
+    .status {
+      background: #e7f3ff;
+      border-left: 4px solid #007bff;
+      padding: 15px;
+      margin: 20px 0;
+      border-radius: 4px;
+    }
+    .test-scenario {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+    .test-scenario h3 {
+      margin-top: 0;
+      color: #856404;
+    }
+    .error {
+      background: #f8d7da;
+      border-left: 4px solid #dc3545;
+      color: #721c24;
+      padding: 15px;
+      margin: 15px 0;
+      border-radius: 4px;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔬 Universal Conditional Logic Test</h1>
+  
+  <div class="status">
+    <strong>Status:</strong> <span id="status">Waiting for script to load...</span><br>
+    <strong>Rules Loaded:</strong> <span id="rule-count">0</span><br>
+    <strong>Elements Paired:</strong> <span id="paired-count">0</span>
+  </div>
+
+  <!-- Test Scenario 1: Simple Show/Hide with Text Input -->
+  <div class="form-section">
+    <div class="test-scenario">
+      <h3>Test 1: Text Input → Show/Hide</h3>
+      <p><strong>Rule:</strong> When "Full Name" is not empty, show "Email Address"</p>
+      <p><strong>Expected:</strong> Email field appears as soon as you type anything</p>
+    </div>
+
+    <form id="test-form-1">
+      <div class="form-group">
+        <label for="Full-Name-Test1">Full Name</label>
+        <input type="text" id="Full-Name-Test1" name="Full-Name-Test1" placeholder="Type your name...">
+      </div>
+
+      <div class="form-group" id="email-wrapper" style="display: none;">
+        <label for="Email-Test1">Email Address</label>
+        <input type="email" id="Email-Test1" name="Email-Test1" placeholder="your.email@example.com">
+      </div>
+    </form>
+  </div>
+
+  <!-- Test Scenario 2: Select → Multiple Show/Hide (Index-Based) -->
+  <div class="form-section">
+    <div class="test-scenario">
+      <h3>Test 2: Select → Multiple Show/Hide (Index-Based)</h3>
+      <p><strong>Rule:</strong> Show different checkboxes based on selected country</p>
+      <p><strong>Expected:</strong> Only the checkbox for selected country appears</p>
+    </div>
+
+    <form id="test-form-2">
+      <div class="form-group">
+        <label for="Select-Country-Test2">Select a Country</label>
+        <select id="Select-Country-Test2" name="Select-Country-Test2">
+          <option value="">-- Choose --</option>
+          <option value="USA">United States</option>
+          <option value="UK">United Kingdom</option>
+          <option value="JP">Japan</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+
+      <div class="form-group" style="display: none;">
+        <input type="checkbox" id="USA-Checkbox" name="USA-Checkbox">
+        <label for="USA-Checkbox" style="display: inline;">🇺🇸 I am a US resident</label>
+      </div>
+
+      <div class="form-group" style="display: none;">
+        <input type="checkbox" id="UK-Checkbox" name="UK-Checkbox">
+        <label for="UK-Checkbox" style="display: inline;">🇬🇧 I am a UK resident</label>
+      </div>
+
+      <div class="form-group" style="display: none;">
+        <input type="checkbox" id="JP-Checkbox" name="JP-Checkbox">
+        <label for="JP-Checkbox" style="display: inline;">🇯🇵 I am a Japan resident</label>
+      </div>
+    </form>
+  </div>
+
+  <!-- Test Scenario 3: Checkbox → Show/Hide -->
+  <div class="form-section">
+    <div class="test-scenario">
+      <h3>Test 3: Checkbox → Show/Hide</h3>
+      <p><strong>Rule:</strong> When "Agree to Terms" is checked, show "Submit Button"</p>
+      <p><strong>Expected:</strong> Submit button appears only when checkbox is checked</p>
+    </div>
+
+    <form id="test-form-3">
+      <div class="form-group">
+        <input type="checkbox" id="Agree-Terms-Test3" name="Agree-Terms-Test3" value="true">
+        <label for="Agree-Terms-Test3" style="display: inline;">I agree to the Terms and Conditions</label>
+      </div>
+
+      <div class="form-group" style="display: none;">
+        <button type="button" id="Submit-Test3">Submit Form</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- Test Scenario 4: Radio → Show/Hide -->
+  <div class="form-section">
+    <div class="test-scenario">
+      <h3>Test 4: Radio Buttons → Show/Hide</h3>
+      <p><strong>Rule:</strong> When "Yes" is selected, show "Account Number" field</p>
+      <p><strong>Expected:</strong> Account field appears only when "Yes" is selected</p>
+    </div>
+
+    <form id="test-form-4">
+      <div class="form-group">
+        <label>Do you have an existing account?</label>
+        <div>
+          <input type="radio" id="Has-Account-Yes" name="Has-Account-Test4" value="yes">
+          <label for="Has-Account-Yes" style="display: inline; font-weight: normal;">Yes</label>
+          <input type="radio" id="Has-Account-No" name="Has-Account-Test4" value="no" style="margin-left: 20px;">
+          <label for="Has-Account-No" style="display: inline; font-weight: normal;">No</label>
+        </div>
+      </div>
+
+      <div class="form-group" style="display: none;">
+        <label for="Account-Number-Test4">Account Number</label>
+        <input type="text" id="Account-Number-Test4" name="Account-Number-Test4" placeholder="Enter your account number">
+      </div>
+    </form>
+  </div>
+
+  <!-- Test Scenario 5: Multi-Field AND Logic -->
+  <div class="form-section">
+    <div class="test-scenario">
+      <h3>Test 5: Multi-Field AND Logic</h3>
+      <p><strong>Rule:</strong> Show discount code field ONLY if: Country = USA AND Over 18 is checked</p>
+      <p><strong>Expected:</strong> Discount field appears only when BOTH conditions are met</p>
+    </div>
+
+    <form id="test-form-5">
+      <div class="form-group">
+        <label for="Country-Test5">Country</label>
+        <select id="Country-Test5" name="Country-Test5">
+          <option value="">-- Select --</option>
+          <option value="USA">United States</option>
+          <option value="Canada">Canada</option>
+          <option value="Mexico">Mexico</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <input type="checkbox" id="Over-18-Test5" name="Over-18-Test5" value="true">
+        <label for="Over-18-Test5" style="display: inline;">I am 18 years or older</label>
+      </div>
+
+      <div class="form-group" style="display: none;">
+        <label for="Discount-Code-Test5">Special Discount Code</label>
+        <input type="text" id="Discount-Code-Test5" name="Discount-Code-Test5" placeholder="USA18SPECIAL">
+      </div>
+    </form>
+  </div>
+
+  <!-- Console Output -->
+  <div class="form-section">
+    <h3>📋 Console Log</h3>
+    <div id="console-output" style="background: #f8f9fa; padding: 15px; border-radius: 4px; font-family: monospace; font-size: 12px; max-height: 300px; overflow-y: auto;">
+      <div style="color: #666;">Waiting for events...</div>
+    </div>
+  </div>
+
+  <!-- Load the Roolify script from your Next.js API -->
+  <script>
+    // Intercept console.log to display in page
+    const consoleOutput = document.getElementById('console-output');
+    const originalLog = console.log;
+    console.log = function(...args) {
+      originalLog.apply(console, args);
+      const message = args.map(arg => 
+        typeof arg === 'object' ? JSON.stringify(arg, null, 2) : String(arg)
+      ).join(' ');
+      
+      if (message.includes('[Roolify]')) {
+        const div = document.createElement('div');
+        div.style.marginBottom = '5px';
+        div.style.color = message.includes('✓') ? '#28a745' : 
+                          message.includes('✗') ? '#dc3545' : 
+                          message.includes('⚠') ? '#ffc107' : '#333';
+        div.textContent = new Date().toISOString().substr(11, 8) + ' ' + message;
+        consoleOutput.insertBefore(div, consoleOutput.firstChild);
+      }
+    };
+
+    // Status updater
+    window.addEventListener('load', function() {
+      // Check if Roolify loaded
+      setTimeout(() => {
+        const pairedElements = document.querySelectorAll('[data-roolify]').length;
+        document.getElementById('status').textContent = pairedElements > 0 ? '✅ Script loaded successfully' : '❌ Script not loaded';
+        document.getElementById('paired-count').textContent = pairedElements;
+      }, 1000);
+    });
+  </script>
+
+  <!-- Load actual Roolify script -->
+  <script>
+    // Since we can't use the real siteId, we'll create test rules manually
+    console.log('[Test Page] This page would normally load: http://localhost:3000/api/script/serve/YOUR_SITE_ID');
+    console.log('[Test Page] For testing, create rules in the app that match these field IDs');
+  </script>
+
+  <div class="status" style="margin-top: 30px;">
+    <h3>🎯 To Test This Page:</h3>
+    <ol>
+      <li>Go to <code>http://localhost:3000/rule-builder</code></li>
+      <li>Create rules matching the test scenarios above</li>
+      <li>Add the Roolify script to this page: <code>&lt;script src="http://localhost:3000/api/script/serve/YOUR_SITE_ID">&lt;/script></code></li>
+      <li>Reload this page and interact with the forms</li>
+    </ol>
+  </div>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+

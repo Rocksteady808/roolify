@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link href="./styles.css" rel="stylesheet" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <style>body{font-family:Inter, system-ui, sans-serif;padding:16px}</style>
+  </head>
+
+  <body>
+    <form id="extension-form">
+      <div>Choose a text element and select the emoji to insert</div>
+      <div id="emoji-container">
+        <button id="smile" type="button">😊</button>
+        <button id="wink" type="button">😉</button>
+        <button id="heart" type="button">😍</button>
+        <button id="cry" type="button">😭</button>
+      </div>
+    </form>
+
+    <hr style="margin:12px 0" />
+
+    <div>
+      <h3>Design Scanner</h3>
+      <p>Get the current design data including all styles, site info, and selected element details.</p>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+        <input id="apiBase" placeholder="https://your-app.com (or leave blank for origin)" style="flex:1;padding:6px;border:1px solid #ddd;border-radius:6px" />
+        <button id="getDesign" type="button">Get Current Design</button>
+      </div>
+      <div id="designResult" style="margin-top:8px;font-size:13px;color:#444"></div>
+    </div>
+
+    <hr style="margin:12px 0" />
+
+    <div>
+      <h3>Form Scanner</h3>
+      <p>Pick a form element in the designer, then click <strong>Scan selected form</strong> to detect fields and send them to the app.</p>
+      <div style="display:flex;gap:8px;align-items:center;margin-top:8px">
+        <button id="scanForm" type="button">Scan selected form</button>
+      </div>
+      <div id="scanResult" style="margin-top:8px;font-size:13px;color:#444"></div>
+    </div>
+
+    <script src="index.js" defer></script>
+  </body>
+</html>

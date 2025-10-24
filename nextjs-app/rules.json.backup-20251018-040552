@@ -1,0 +1,314 @@
+{
+  "state-rule-california": {
+    "id": "state-rule-california",
+    "createdAt": "2025-10-12T03:40:00.000Z",
+    "updatedAt": "2025-10-12T03:40:00.000Z",
+    "formId": "68bc44e9bce2c534f83c8a07",
+    "siteId": "68eb5d6db0e34d2e3ed12c0a",
+    "name": "State Form - Show California",
+    "logicType": "AND",
+    "conditions": [
+      {
+        "id": "california-cond-1",
+        "fieldId": "Select-a-State",
+        "operator": "==",
+        "value": "California"
+      }
+    ],
+    "actions": [
+      {
+        "id": "california-action-1",
+        "type": "show",
+        "targetFieldId": "California"
+      }
+    ],
+    "isActive": true
+  },
+  "state-rule-newyork": {
+    "id": "state-rule-newyork",
+    "createdAt": "2025-10-12T03:40:00.000Z",
+    "updatedAt": "2025-10-12T03:40:00.000Z",
+    "formId": "68bc44e9bce2c534f83c8a07",
+    "siteId": "68eb5d6db0e34d2e3ed12c0a",
+    "name": "State Form - Show New York",
+    "logicType": "AND",
+    "conditions": [
+      {
+        "id": "newyork-cond-1",
+        "fieldId": "Select-a-State",
+        "operator": "==",
+        "value": "New York"
+      }
+    ],
+    "actions": [
+      {
+        "id": "newyork-action-1",
+        "type": "show",
+        "targetFieldId": "New-York"
+      }
+    ],
+    "isActive": true
+  },
+  "state-rule-texas": {
+    "id": "state-rule-texas",
+    "createdAt": "2025-10-12T03:40:00.000Z",
+    "updatedAt": "2025-10-12T03:40:00.000Z",
+    "formId": "68bc44e9bce2c534f83c8a07",
+    "siteId": "68eb5d6db0e34d2e3ed12c0a",
+    "name": "State Form - Show Texas",
+    "logicType": "AND",
+    "conditions": [
+      {
+        "id": "texas-cond-1",
+        "fieldId": "Select-a-State",
+        "operator": "==",
+        "value": "Texas"
+      }
+    ],
+    "actions": [
+      {
+        "id": "texas-action-1",
+        "type": "show",
+        "targetFieldId": "Texas"
+      }
+    ],
+    "isActive": true
+  },
+  "state-rule-florida": {
+    "id": "state-rule-florida",
+    "createdAt": "2025-10-12T03:40:00.000Z",
+    "updatedAt": "2025-10-12T03:40:00.000Z",
+    "formId": "68bc44e9bce2c534f83c8a07",
+    "siteId": "68eb5d6db0e34d2e3ed12c0a",
+    "name": "State Form - Show Florida",
+    "logicType": "AND",
+    "conditions": [
+      {
+        "id": "florida-cond-1",
+        "fieldId": "Select-a-State",
+        "operator": "==",
+        "value": "Florida"
+      }
+    ],
+    "actions": [
+      {
+        "id": "florida-action-1",
+        "type": "show",
+        "targetFieldId": "Florida"
+      }
+    ],
+    "isActive": true
+  },
+  "country-rule-usa": {
+    "id": "country-rule-usa",
+    "createdAt": "2025-10-12T03:40:00.000Z",
+    "updatedAt": "2025-10-12T03:40:00.000Z",
+    "formId": "68cff42b8fe69063293e7075",
+    "siteId": "68eb5d6db0e34d2e3ed12c0a",
+    "name": "Country Form - Show United States",
+    "logicType": "AND",
+    "conditions": [
+      {
+        "id": "usa-cond-1",
+        "fieldId": "Select-a-Country",
+        "operator": "==",
+        "value": "United States"
+      }
+    ],
+    "actions": [
+      {
+        "id": "usa-action-1",
+        "type": "show",
+        "targetFieldId": "United-States"
+      }
+    ],
+    "isActive": true
+  },
+  "country-rule-uk": {
+    "id": "country-rule-uk",
+    "createdAt": "2025-10-12T03:40:00.000Z",
+    "updatedAt": "2025-10-12T03:40:00.000Z",
+    "formId": "68cff42b8fe69063293e7075",
+    "siteId": "68eb5d6db0e34d2e3ed12c0a",
+    "name": "Country Form - Show United Kingdom",
+    "logicType": "AND",
+    "conditions": [
+      {
+        "id": "uk-cond-1",
+        "fieldId": "Select-a-Country",
+        "operator": "==",
+        "value": "United Kingdom"
+      }
+    ],
+    "actions": [
+      {
+        "id": "uk-action-1",
+        "type": "show",
+        "targetFieldId": "United-Kingdom"
+      }
+    ],
+    "isActive": true
+  },
+  "country-rule-japan": {
+    "id": "country-rule-japan",
+    "createdAt": "2025-10-12T03:40:00.000Z",
+    "updatedAt": "2025-10-12T03:40:00.000Z",
+    "formId": "68cff42b8fe69063293e7075",
+    "siteId": "68eb5d6db0e34d2e3ed12c0a",
+    "name": "Country Form - Show Japan",
+    "logicType": "AND",
+    "conditions": [
+      {
+        "id": "japan-cond-1",
+        "fieldId": "Select-a-Country",
+        "operator": "==",
+        "value": "Japan"
+      }
+    ],
+    "actions": [
+      {
+        "id": "japan-action-1",
+        "type": "show",
+        "targetFieldId": "Japan"
+      }
+    ],
+    "isActive": true
+  },
+  "country-rule-ireland": {
+    "id": "country-rule-ireland",
+    "createdAt": "2025-10-12T03:40:00.000Z",
+    "updatedAt": "2025-10-12T03:40:00.000Z",
+    "formId": "68cff42b8fe69063293e7075",
+    "siteId": "68eb5d6db0e34d2e3ed12c0a",
+    "name": "Country Form - Show Ireland",
+    "logicType": "AND",
+    "conditions": [
+      {
+        "id": "ireland-cond-1",
+        "fieldId": "Select-a-Country",
+        "operator": "==",
+        "value": "Ireland"
+      }
+    ],
+    "actions": [
+      {
+        "id": "ireland-action-1",
+        "type": "show",
+        "targetFieldId": "Ireland"
+      }
+    ],
+    "isActive": true
+  },
+  "country-rule-oman": {
+    "id": "country-rule-oman",
+    "createdAt": "2025-10-12T03:40:00.000Z",
+    "updatedAt": "2025-10-12T03:40:00.000Z",
+    "formId": "68cff42b8fe69063293e7075",
+    "siteId": "68eb5d6db0e34d2e3ed12c0a",
+    "name": "Country Form - Show Oman",
+    "logicType": "AND",
+    "conditions": [
+      {
+        "id": "oman-cond-1",
+        "fieldId": "Select-a-Country",
+        "operator": "==",
+        "value": "Oman"
+      }
+    ],
+    "actions": [
+      {
+        "id": "oman-action-1",
+        "type": "show",
+        "targetFieldId": "Oman"
+      }
+    ],
+    "isActive": true
+  },
+  "90ca537a-1ccf-4814-9205-8bab72b6efa4": {
+    "id": "90ca537a-1ccf-4814-9205-8bab72b6efa4",
+    "createdAt": "2025-10-11T11:05:27.485Z",
+    "updatedAt": "2025-10-11T11:05:27.485Z",
+    "formId": "68e0a4f2b9f73a64398b8e4a",
+    "siteId": "68eb5d6db0e34d2e3ed12c0a",
+    "name": "Rule 1760180727485",
+    "conditions": [
+      {
+        "id": "1760180727355.4905",
+        "fieldId": "has-account-yes",
+        "operator": "==",
+        "value": "true"
+      }
+    ],
+    "actions": [
+      {
+        "id": "1760180727356.6091",
+        "type": "show",
+        "targetFieldId": "HBI-Account-Rep"
+      },
+      {
+        "id": "1760180727356.37",
+        "type": "show",
+        "targetFieldId": "EIN-Number"
+      }
+    ],
+    "isActive": true
+  },
+  "hide-hbi-fields-by-default": {
+    "id": "hide-hbi-fields-by-default",
+    "createdAt": "2025-01-11T12:00:00.000Z",
+    "updatedAt": "2025-01-11T12:00:00.000Z",
+    "formId": "68e0a4f2b9f73a64398b8e4a",
+    "siteId": "68eb5d6db0e34d2e3ed12c0a",
+    "name": "Hide HBI Fields by Default",
+    "conditions": [
+      {
+        "id": "hide-default-1",
+        "fieldId": "has-account-yes",
+        "operator": "!=",
+        "value": "true"
+      }
+    ],
+    "actions": [
+      {
+        "id": "hide-default-action-1",
+        "type": "hide",
+        "targetFieldId": "HBI-Account-Rep"
+      },
+      {
+        "id": "hide-default-action-2",
+        "type": "hide",
+        "targetFieldId": "EIN-Number"
+      }
+    ],
+    "isActive": true
+  },
+  "hide-hbi-fields-when-no": {
+    "id": "hide-hbi-fields-when-no",
+    "createdAt": "2025-01-11T12:00:00.000Z",
+    "updatedAt": "2025-01-11T12:00:00.000Z",
+    "formId": "68e0a4f2b9f73a64398b8e4a",
+    "siteId": "68eb5d6db0e34d2e3ed12c0a",
+    "name": "Hide HBI Fields When No Selected",
+    "conditions": [
+      {
+        "id": "hide-no-1",
+        "fieldId": "has-account-no",
+        "operator": "==",
+        "value": "true"
+      }
+    ],
+    "actions": [
+      {
+        "id": "hide-no-action-1",
+        "type": "hide",
+        "targetFieldId": "HBI-Account-Rep"
+      },
+      {
+        "id": "hide-no-action-2",
+        "type": "hide",
+        "targetFieldId": "EIN-Number"
+      }
+    ],
+    "isActive": true
+  }
+}
