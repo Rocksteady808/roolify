@@ -1,9 +1,9 @@
 [build]
-  # Build command for Next.js
-  command = "npm run build"
+  # Build command for Next.js in subdirectory
+  command = "cd nextjs-app && npm ci && npm run build"
   
   # Directory to publish (Next.js output directory)
-  publish = "out"
+  publish = "nextjs-app/out"
 
 [build.environment]
   # Node.js version
@@ -11,8 +11,6 @@
   
   # Next.js environment
   NEXT_TELEMETRY_DISABLED = "1"
-
-# Using static export with manual redirects
 
 # Headers for security and performance
 [[headers]]
