@@ -11,8 +11,11 @@ build/
 dist/
 
 # Environment variables
-.env*
-!.env.example
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # IDE
 .vscode/
@@ -43,3 +46,16 @@ coverage/
 # Temporary files
 *.tmp
 *.temp
+
+# Debug scripts with credentials
+debug-*.js
+debug-*.ts
+**/debug-*.js
+**/debug-*.ts
+test-*.js
+send-test-*.js
+diagnose-*.js
+migrate-*.js
+fix-*.js
+create-*.js
+resend-*.js

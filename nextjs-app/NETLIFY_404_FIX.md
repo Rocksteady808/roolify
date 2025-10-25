@@ -56,8 +56,8 @@ NEXT_PUBLIC_XANO_API_URL=https://x1zj-piqu-kkh1.n7e.xano.io/api:sb2RCLwj
 NEXT_PUBLIC_XANO_PUBLIC_KEY=your_xano_public_key
 XANO_API_KEY=your_xano_api_key
 SENDGRID_API_KEY=your_sendgrid_api_key
-WEBFLOW_CLIENT_ID=0f2deed02579b7613e8df536899050e17c02ad3a61d2a7bbaf0f80e4a63b596d
-WEBFLOW_CLIENT_SECRET=your_webflow_client_secret
+WEBFLOW_CLIENT_ID=your_webflow_client_id_here
+WEBFLOW_CLIENT_SECRET=your_webflow_client_secret_here
 STRIPE_SECRET_KEY=your_stripe_secret_key
 STRIPE_PUBLISHABLE_KEY=your_stripe_publishable_key
 ```

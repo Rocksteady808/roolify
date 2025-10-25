@@ -269,9 +269,8 @@ export default function SiteSelector({ onSiteChange, className = '' }: SiteSelec
               <div className="border-t border-gray-200 my-1"></div>
               <button
                 onClick={() => {
-                  // Use the direct OAuth URL instead of the install route
-                  const oauthUrl = 'https://webflow.com/oauth/authorize?client_id=0f2deed02579b7613e8df536899050e17c02ad3a61d2a7bbaf0f80e4a63b596d&redirect_uri=http%3A%2F%2Flocalhost%3A3000%2Fapi%2Fauth%2Fcallback&response_type=code&scope=sites%3Aread+forms%3Aread+pages%3Aread';
-                  window.open(oauthUrl, '_blank');
+                  // Use the install route which properly uses environment variables
+                  window.open('/api/auth/install', '_blank');
                   setIsOpen(false);
                 }}
                 className="block w-full text-left px-4 py-2 text-sm text-gray-600 hover:bg-gray-100 hover:text-gray-900"

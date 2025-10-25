@@ -25,8 +25,8 @@ Follow the prompts:
 After deployment, go to your Vercel dashboard and add these environment variables:
 
 ```
-WEBFLOW_CLIENT_ID=0f2deed02579b7613e8df536899050e17c02ad3a61d2a7bbaf0f80e4a63b596d
-WEBFLOW_CLIENT_SECRET=your_actual_client_secret_here
+WEBFLOW_CLIENT_ID=your_webflow_client_id_here
+WEBFLOW_CLIENT_SECRET=your_webflow_client_secret_here
 NEXT_PUBLIC_APP_URL=https://your-app.vercel.app
 NEXT_PUBLIC_REDIRECT_URI=https://your-app.vercel.app/api/auth/callback
 ```
