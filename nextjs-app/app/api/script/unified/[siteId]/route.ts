@@ -649,9 +649,9 @@ export async function GET(
       
       // Try alternative URLs if the primary fails
       const alternativeUrls = [
-        'https://roolify.netlify.app/api/submissions/webhook',
-        'https://roolify-app.netlify.app/api/submissions/webhook',
-        'https://roolify-forms.netlify.app/api/submissions/webhook'
+        'https://roolify.netlify.app/api/submissions/webhook/',
+        'https://roolify-app.netlify.app/api/submissions/webhook/',
+        'https://roolify-forms.netlify.app/api/submissions/webhook/'
       ];
       
       console.log('[Roolify] Trying alternative URLs...');
