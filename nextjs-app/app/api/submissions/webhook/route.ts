@@ -927,6 +927,12 @@ export async function POST(req: Request) {
       submissionId: savedSubmission.id,
       formId: numericFormId,
       message: 'Submission received and stored'
+    }, {
+      headers: {
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'POST, OPTIONS',
+        'Access-Control-Allow-Headers': 'Content-Type',
+      },
     });
 
   } catch (error: any) {
@@ -936,9 +942,30 @@ export async function POST(req: Request) {
         success: false, 
         error: error.message || 'Failed to process submission' 
       },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: {
+          'Access-Control-Allow-Origin': '*',
+          'Access-Control-Allow-Methods': 'POST, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type',
+        },
+      }
     );
   }
+}
+
+/**
+ * OPTIONS endpoint to handle CORS preflight requests
+ */
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'POST, OPTIONS',
+      'Access-Control-Allow-Headers': 'Content-Type',
+    },
+  });
 }
 
 /**
