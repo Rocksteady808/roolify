@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Vercel configuration
+  // Netlify configuration
+  output: 'export',
   trailingSlash: true,
   typescript: {
     ignoreBuildErrors: true,

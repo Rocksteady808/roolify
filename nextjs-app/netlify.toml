@@ -1,6 +1,6 @@
 [build]
   # Build command for Next.js
-  command = "npm run build:netlify"
+  command = "npm run build"
   
   # Directory to publish (Next.js output directory)
   publish = "out"
