@@ -1,7 +1,5 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Netlify configuration
-  output: 'export',
   trailingSlash: true,
   typescript: {
     ignoreBuildErrors: true,
