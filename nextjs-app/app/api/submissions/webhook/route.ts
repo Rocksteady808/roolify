@@ -43,20 +43,37 @@ async function sendNotificationEmails(formId: string, formData: any, formName: s
     // Find notification settings by SITE + HTML_FORM_ID
     let settings = null;
     if (siteId && htmlFormId) {
-      console.log('[Email] 🔍 DIAGNOSTIC: Looking for notification settings by SITE + HTML_FORM_ID');
-      console.log('[Email] 🔍 DIAGNOSTIC: Site ID:', siteId, 'HTML Form ID:', htmlFormId);
+      console.log('[Email] 🔍 DIAGNOSTIC: Looking for notification settings');
+      console.log('[Email] 🔍 DIAGNOSTIC: Site ID:', siteId, '(type:', typeof siteId, ')');
+      console.log('[Email] 🔍 DIAGNOSTIC: HTML Form ID:', htmlFormId, '(type:', typeof htmlFormId, ')');
       
-      // First try to find by site_id + html_form_id
+      // Primary lookup
       settings = await xanoNotifications.getBySiteAndForm(siteId, htmlFormId);
       
       if (settings) {
-        console.log('[Email] 🔍 DIAGNOSTIC: Found notification settings:', settings.id);
+        console.log('[Email] ✅ Found notification settings via primary lookup (ID:', settings.id, ')');
+        console.log('[Email] 📊 Settings summary:', {
+          hasAdminRoutes: !!settings.admin_routes,
+          hasUserRoutes: !!settings.user_routes,
+          adminFallback: settings.admin_fallback_email,
+          userFallback: settings.user_fallback_email
+        });
       } else {
-        console.log('[Email] 🔍 DIAGNOSTIC: No notification settings found for site:', siteId, 'form:', htmlFormId);
+        console.log('[Email] ⚠️ No settings found via primary lookup - trying fallbacks');
+        
+        // Log all available notification settings for debugging
+        const allSettings = await xanoNotifications.getAll();
+        console.log('[Email] 📊 Total notification settings in database:', allSettings.length);
+        allSettings.forEach(s => {
+          console.log('[Email] 📋 Available setting:', {
+            id: s.id,
+            formId: s.form,
+            hasRoutes: !!(s.admin_routes || s.user_routes)
+          });
+        });
         
         // FALLBACK: Try to find any settings for this form name (in case site ID is different)
         console.log('[Email] 🔍 DIAGNOSTIC: Trying fallback lookup by form name...');
-        const allSettings = await xanoNotifications.getAll();
         const allForms = await xanoForms.getAll();
         
         // Find forms with matching name
@@ -905,6 +922,18 @@ export async function POST(req: Request) {
     });
 
         // Send notification emails based on saved notification settings
+        console.log('[Submission Webhook] 📧 Pre-check before sending emails...');
+        
+        // Check if SendGrid is configured
+        const sendGridConfigured = !!process.env.SENDGRID_API_KEY;
+        console.log('[Submission Webhook] SendGrid configured:', sendGridConfigured);
+        
+        if (!sendGridConfigured) {
+          console.error('[Submission Webhook] ⚠️ CRITICAL: SendGrid API key not configured!');
+          console.error('[Submission Webhook] 💡 Add SENDGRID_API_KEY to Netlify environment variables');
+          console.error('[Submission Webhook] 💡 Submissions will be saved but emails will NOT be sent');
+        }
+        
         console.log('[Submission Webhook] 📧 About to call sendNotificationEmails for form:', numericFormId);
         console.log('[Submission Webhook] 📧 Form name:', formName);
         console.log('[Submission Webhook] 📧 Submission data keys:', Object.keys(submissionDataWithMeta || {}));
@@ -912,7 +941,11 @@ export async function POST(req: Request) {
           // Send emails using the normalized data so checkboxes render as booleans
           console.log('[Submission Webhook] 📧 Calling sendNotificationEmails now...');
           await sendNotificationEmails(numericFormId.toString(), submissionDataWithMeta, formName, siteId, htmlFormId);
-          console.log('[Submission Webhook] ✅ sendNotificationEmails completed successfully');
+          if (sendGridConfigured) {
+            console.log('[Submission Webhook] ✅ Email notifications sent successfully');
+          } else {
+            console.log('[Submission Webhook] ⚠️ Email send skipped - no SendGrid key');
+          }
         } catch (emailError) {
           console.error('[Submission Webhook] ⚠️ Email sending failed:', emailError);
           console.log('[Submission Webhook] ⚠️ Error details:', emailError.message);

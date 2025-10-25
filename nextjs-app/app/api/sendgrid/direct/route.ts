@@ -24,6 +24,13 @@ export async function POST(req: NextRequest) {
     // You'll need to add your SendGrid API key to environment variables
     const apiKey = process.env.SENDGRID_API_KEY;
     
+    // Add diagnostic logging
+    console.log('[Direct SendGrid] 🔍 DIAGNOSTIC: Checking environment variables');
+    console.log('[Direct SendGrid] 🔍 API key exists:', !!apiKey);
+    console.log('[Direct SendGrid] 🔍 API key length:', apiKey?.length || 0);
+    console.log('[Direct SendGrid] 🔍 API key prefix:', apiKey?.substring(0, 5) || 'NOT_SET');
+    console.log('[Direct SendGrid] 🔍 All env vars available:', Object.keys(process.env).filter(k => k.includes('SENDGRID')));
+    
     if (!apiKey) {
       console.error('[Direct SendGrid] ❌ Missing SENDGRID_API_KEY environment variable');
       console.error('[Direct SendGrid] 💡 Add SENDGRID_API_KEY to your .env.local file');

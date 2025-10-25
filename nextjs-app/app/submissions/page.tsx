@@ -1,5 +1,7 @@
 'use client';
 
+export const dynamic = 'force-dynamic';
+
 import { useState, useEffect } from 'react';
 import ShadcnSidebar from '@/components/ShadcnSidebar';
 import { SidebarProvider } from "@/components/ui/sidebar";
