@@ -1273,37 +1273,6 @@ ${fieldsList}
                 ))}
               </FormSelect>
               
-              {/* Debug Panel */}
-              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs">
-                <div className="font-semibold text-yellow-800 mb-2">🐛 Debug Info:</div>
-                <div><strong>Site ID:</strong> {siteId || 'Not set'}</div>
-                <div><strong>Forms loaded:</strong> {forms.length}</div>
-                <div><strong>Selected form ID:</strong> {selectedFormId || 'None'}</div>
-                <div><strong>Fields available:</strong> {fields.length}</div>
-                {selectedFormId && (
-                  <div><strong>Selected form name:</strong> {forms.find(f => f.id === selectedFormId)?.name || 'Not found'}</div>
-                )}
-                {fields.length > 0 && (
-                  <div><strong>Field types:</strong> {fields.map(f => `${f.name} (${f.type})`).join(', ')}</div>
-                )}
-                {fields.length > 0 && fields.some(f => f.name === 'HBI Account Rep') && (
-                  <div className="text-green-600 font-semibold">✅ HBI Account Rep field found!</div>
-                )}
-                <div className="mt-2">
-                  <button 
-                    onClick={() => {
-                      const hbiForm = forms.find(f => f.name.includes('HBI International'));
-                      if (hbiForm) {
-                        setSelectedFormId(hbiForm.id);
-                        console.log('[Debug] Auto-selected HBI form:', hbiForm.id, hbiForm.name);
-                      }
-                    }}
-                    className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs hover:bg-blue-200"
-                  >
-                    Auto-select HBI Form
-                  </button>
-                </div>
-              </div>
             </div>
 
             <div className="bg-white border rounded p-6">
@@ -1605,25 +1574,6 @@ ${fieldsList}
                 <div className="text-lg font-semibold text-gray-900 mb-4">Conditional Routing</div>
                 <div className="text-sm text-gray-700 mb-4">Choose where to send your notification based on form input</div>
                 
-                {/* Debug info for conditional routing */}
-                <div className="mb-4 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
-                  <div className="font-semibold text-blue-800 mb-1">🔍 Available Fields for Routing:</div>
-                  {fields.length === 0 ? (
-                    <div className="text-red-600">No fields available - please select a form first</div>
-                  ) : (
-                    <div>
-                      {fields.map(f => (
-                        <div key={f.id} className="flex items-center gap-2">
-                          <span className="font-mono text-xs">{f.name}</span>
-                          <span className="text-gray-500">({f.type})</span>
-                          {f.type === 'select' && f.options && (
-                            <span className="text-green-600">• {f.options.length} options</span>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
 
                 <div className="space-y-4">
                     {adminRouting.map((r, index) => (
