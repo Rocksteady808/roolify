@@ -1,6 +1,7 @@
 # Netlify redirects for Next.js static export
 
-# API routes - these will be handled by Netlify Functions
+# API routes - NO redirects, pass through directly (! forces rule)
+/api/submissions/webhook /api/submissions/webhook 200!
 /api/* /api/:splat 200
 
 # Static files

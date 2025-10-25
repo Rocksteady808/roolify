@@ -16,15 +16,13 @@ export async function GET(
 ) {
   try {
     const { siteId } = params;
-    // Use environment variable if set, otherwise construct from request
-    let appUrl = process.env.NEXT_PUBLIC_APP_URL;
-    if (!appUrl) {
+    // Use environment variable with production fallback
+    let appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://roolify.netlify.app';
+    // If running locally, use localhost
+    if (request.nextUrl.origin.includes('localhost') || request.nextUrl.origin.includes('127.0.0.1')) {
       appUrl = request.nextUrl.origin;
-      console.log(`[Unified Script] No NEXT_PUBLIC_APP_URL set, using request origin: ${appUrl}`);
-    } else {
-      console.log(`[Unified Script] Using NEXT_PUBLIC_APP_URL: ${appUrl}`);
     }
-    
+    console.log(`[Unified Script] Using API URL: ${appUrl}`);
     console.log(`[Unified Script] Serving script for site: ${siteId}`);
 
     // Fetch rules for this specific site from Xano
@@ -616,9 +614,8 @@ export async function GET(
    */
   function sendSubmission(data) {
     console.log('[Roolify] Sending submission:', data);
-    console.log('[Roolify] API URL being used:', API_URL);
+    console.log('[Roolify] API URL:', API_URL);
 
-    // Try the primary URL first
     fetch(API_URL, {
       method: 'POST',
       headers: {
@@ -628,68 +625,22 @@ export async function GET(
     })
     .then(response => {
       console.log('[Roolify] Response status:', response.status);
-      console.log('[Roolify] Response headers:', response.headers);
       
       if (!response.ok) {
-        throw new Error(\`HTTP error! status: \${response.status} - \${response.statusText}\`);
+        throw new Error(\`HTTP error! status: \${response.status}\`);
       }
       return response.json();
     })
     .then(result => {
-      console.log('[Roolify] Submission saved successfully:', result);
+      console.log('[Roolify] ✅ Submission saved successfully:', result);
     })
     .catch(error => {
-      console.error('[Roolify] Failed to save submission with primary URL:', error);
+      console.error('[Roolify] ❌ Failed to save submission:', error);
       console.error('[Roolify] Error details:', {
         message: error.message,
-        stack: error.stack,
         apiUrl: API_URL,
         currentUrl: window.location.href
       });
-      
-      // Try alternative URLs if the primary fails
-      const alternativeUrls = [
-        'https://roolify.netlify.app/api/submissions/webhook/',
-        'https://roolify-app.netlify.app/api/submissions/webhook/',
-        'https://roolify-forms.netlify.app/api/submissions/webhook/'
-      ];
-      
-      console.log('[Roolify] Trying alternative URLs...');
-      
-      // Try each alternative URL
-      let attemptCount = 0;
-      const tryAlternative = (urlIndex) => {
-        if (urlIndex >= alternativeUrls.length) {
-          console.error('[Roolify] All submission attempts failed');
-          return;
-        }
-        
-        const altUrl = alternativeUrls[urlIndex];
-        console.log('[Roolify] Trying alternative URL:', altUrl);
-        
-        fetch(altUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(data),
-        })
-        .then(response => {
-          if (!response.ok) {
-            throw new Error(\`HTTP error! status: \${response.status} - \${response.statusText}\`);
-          }
-          return response.json();
-        })
-        .then(result => {
-          console.log('[Roolify] Submission saved successfully with alternative URL:', result);
-        })
-        .catch(altError => {
-          console.error('[Roolify] Alternative URL failed:', altUrl, altError);
-          tryAlternative(urlIndex + 1);
-        });
-      };
-      
-      tryAlternative(0);
     });
   }
 

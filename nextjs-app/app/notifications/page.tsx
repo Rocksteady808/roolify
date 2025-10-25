@@ -918,7 +918,9 @@ ${fieldsList}
         
         console.log('[Notifications] IMMEDIATE form loading for site:', immediateSiteId);
         try {
-          const formsResp = await safeFetch(`/api/forms/dynamic-options?siteId=${encodeURIComponent(immediateSiteId)}`);
+          // Add cache busting to ensure fresh data
+          const cacheBuster = `&_refresh=${Date.now()}&_force=${Math.random()}`;
+          const formsResp = await safeFetch(`/api/forms/dynamic-options?siteId=${encodeURIComponent(immediateSiteId)}${cacheBuster}`);
           if (formsResp && formsResp.ok) {
             const formsData = await formsResp.json();
             const formsArray = formsData.forms || [];
@@ -1047,6 +1049,7 @@ ${fieldsList}
     const selectedForm = forms.find((f) => f.id === selectedFormId);
     if (!selectedForm) {
       console.log('[Notifications] Form not found:', selectedFormId);
+      console.log('[Notifications] Available forms:', forms.map(f => ({ id: f.id, name: f.name })));
       return [];
     }
     
@@ -1064,6 +1067,22 @@ ${fieldsList}
         optionsCount: f.options?.length || 0
       }))
     });
+    
+        // Debug: Check for HBI Account Rep field specifically
+        const hbiField = formFields.find((f: any) => f.name === 'HBI Account Rep');
+        if (hbiField) {
+          console.log('[Notifications] 🎯 HBI Account Rep field found:', {
+            id: hbiField.id,
+            type: hbiField.type,
+            options: hbiField.options,
+            optionsLength: hbiField.options?.length || 0,
+            firstOptions: hbiField.options?.slice(0, 3) || [],
+            allOptions: hbiField.options
+          });
+        } else {
+          console.log('[Notifications] ❌ HBI Account Rep field not found in form fields');
+          console.log('[Notifications] Available field names:', formFields.map((f: any) => f.name));
+        }
     
     return formFields;
   }, [forms, selectedFormId]);
@@ -1179,10 +1198,17 @@ ${fieldsList}
                 <label className="text-sm font-medium text-gray-900">Target Form</label>
                 <div className="flex flex-col sm:flex-row gap-2">
                   <button
-                    onClick={refreshForms}
+                    onClick={() => {
+                      // Clear cache and refresh
+                      if (typeof window !== 'undefined') {
+                        localStorage.removeItem('roolify_forms_cache');
+                        setGlobalFormCache({});
+                      }
+                      refreshForms();
+                    }}
                     disabled={isRefreshing || !siteId}
                     className="flex items-center justify-center gap-2 px-3 py-2 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
-                    title="Refresh existing form data (no syncing)"
+                    title="Refresh and clear cache to get fresh form data"
                   >
                     <svg
                       className={`w-4 h-4 ${isRefreshing ? 'animate-spin' : ''}`}
@@ -1197,7 +1223,7 @@ ${fieldsList}
                         d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
                       />
                     </svg>
-                    {isRefreshing ? 'Refreshing...' : 'Refresh'}
+                    {isRefreshing ? 'Refreshing...' : 'Refresh & Clear Cache'}
                   </button>
 
                   {/* Refresh Status Indicator */}
@@ -1246,6 +1272,38 @@ ${fieldsList}
                   </option>
                 ))}
               </FormSelect>
+              
+              {/* Debug Panel */}
+              <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded text-xs">
+                <div className="font-semibold text-yellow-800 mb-2">🐛 Debug Info:</div>
+                <div><strong>Site ID:</strong> {siteId || 'Not set'}</div>
+                <div><strong>Forms loaded:</strong> {forms.length}</div>
+                <div><strong>Selected form ID:</strong> {selectedFormId || 'None'}</div>
+                <div><strong>Fields available:</strong> {fields.length}</div>
+                {selectedFormId && (
+                  <div><strong>Selected form name:</strong> {forms.find(f => f.id === selectedFormId)?.name || 'Not found'}</div>
+                )}
+                {fields.length > 0 && (
+                  <div><strong>Field types:</strong> {fields.map(f => `${f.name} (${f.type})`).join(', ')}</div>
+                )}
+                {fields.length > 0 && fields.some(f => f.name === 'HBI Account Rep') && (
+                  <div className="text-green-600 font-semibold">✅ HBI Account Rep field found!</div>
+                )}
+                <div className="mt-2">
+                  <button 
+                    onClick={() => {
+                      const hbiForm = forms.find(f => f.name.includes('HBI International'));
+                      if (hbiForm) {
+                        setSelectedFormId(hbiForm.id);
+                        console.log('[Debug] Auto-selected HBI form:', hbiForm.id, hbiForm.name);
+                      }
+                    }}
+                    className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs hover:bg-blue-200"
+                  >
+                    Auto-select HBI Form
+                  </button>
+                </div>
+              </div>
             </div>
 
             <div className="bg-white border rounded p-6">
@@ -1546,6 +1604,26 @@ ${fieldsList}
               <div className="bg-white border rounded p-6">
                 <div className="text-lg font-semibold text-gray-900 mb-4">Conditional Routing</div>
                 <div className="text-sm text-gray-700 mb-4">Choose where to send your notification based on form input</div>
+                
+                {/* Debug info for conditional routing */}
+                <div className="mb-4 p-2 bg-blue-50 border border-blue-200 rounded text-xs">
+                  <div className="font-semibold text-blue-800 mb-1">🔍 Available Fields for Routing:</div>
+                  {fields.length === 0 ? (
+                    <div className="text-red-600">No fields available - please select a form first</div>
+                  ) : (
+                    <div>
+                      {fields.map(f => (
+                        <div key={f.id} className="flex items-center gap-2">
+                          <span className="font-mono text-xs">{f.name}</span>
+                          <span className="text-gray-500">({f.type})</span>
+                          {f.type === 'select' && f.options && (
+                            <span className="text-green-600">• {f.options.length} options</span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
 
                 <div className="space-y-4">
                     {adminRouting.map((r, index) => (
@@ -1639,6 +1717,16 @@ ${fieldsList}
                                   console.log('[Notifications] Available fields:', fields.map(f => ({id: f.id, name: f.name, elementId: f.elementId, type: f.type, hasOptions: f.options && f.options.length > 0, displayName: f.displayName, fieldName: f.fieldName})));
                                   console.log('[Notifications] Selected field for value input:', finalSelectedField);
                                   
+                                  if (finalSelectedField) {
+                                    console.log('[Notifications] 🔍 Field details for options check:', {
+                                      name: finalSelectedField.name,
+                                      type: finalSelectedField.type,
+                                      typeLowercase: finalSelectedField.type?.toLowerCase(),
+                                      hasOptions: finalSelectedField.options && finalSelectedField.options.length > 0,
+                                      optionsArray: finalSelectedField.options
+                                    });
+                                  }
+                                  
                                   if (!finalSelectedField) {
                                     console.warn('[Notifications] No field found for routing rule:', {
                                       routingFieldId: r.fieldId,
@@ -1649,7 +1737,7 @@ ${fieldsList}
                                   }
                                   
                                   // Check if field is text-based (should show text input)
-                                  const isTextBasedField = finalSelectedField && ['text', 'email', 'textarea', 'number', 'tel', 'url'].includes(finalSelectedField.type);
+                                  const isTextBasedField = finalSelectedField && ['text', 'email', 'textarea', 'number', 'tel', 'url'].includes(finalSelectedField.type?.toLowerCase() || '');
                                   
                                   // If it's a text-based field, show a text input
                                   if (isTextBasedField) {
@@ -1675,7 +1763,7 @@ ${fieldsList}
                                     >
                                     <option value="">Select value</option>
                                     {(() => {
-                                      if (finalSelectedField && finalSelectedField.type === 'select' && finalSelectedField.options) {
+                                      if (finalSelectedField && finalSelectedField.type?.toLowerCase() === 'select' && finalSelectedField.options && finalSelectedField.options.length > 0) {
                                         console.log('[Notifications] Field has options:', finalSelectedField.options);
                                         // Show dropdown options for select fields
                                         return finalSelectedField.options.map((option: string, index: number) => (
@@ -1683,7 +1771,7 @@ ${fieldsList}
                                             {option}
                                           </option>
                                         ));
-                                      } else if (finalSelectedField && ['checkbox', 'radio'].includes(finalSelectedField.type)) {
+                                      } else if (finalSelectedField && ['checkbox', 'radio'].includes(finalSelectedField.type?.toLowerCase() || '')) {
                                         // Show Yes/No for checkboxes and radio buttons (same as rule builder)
                                         return (
                                           <>

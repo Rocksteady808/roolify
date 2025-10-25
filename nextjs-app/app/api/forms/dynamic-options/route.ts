@@ -271,9 +271,14 @@ export async function GET(req: Request) {
           confidence: undefined as number | undefined,
           aliases: undefined as string[] | undefined
         };
+        
+        // Safety: ensure type is always lowercase
+        if (field.type) {
+          field.type = field.type.toLowerCase();
+        }
 
             // For select fields, try to find matching options from site scan
-            if (fieldData.type === 'Select') {
+            if (fieldData.type?.toString().toLowerCase() === 'select') {
               console.log(`[Dynamic Options] 🔍 Looking for options for field: "${field.name}" (ID: ${fieldId})`);
               console.log(`[Dynamic Options] 🔍 Total selectOptions available: ${selectOptions.length}`);
               console.log(`[Dynamic Options] 🔍 Available selectOptions:`, selectOptions.map((s: any) => ({ id: s.id, name: s.name, hasOptions: s.options && s.options.length > 0 })));
@@ -291,10 +296,18 @@ export async function GET(req: Request) {
                 field.liveName = smartField.liveName;
                 field.confidence = smartField.confidence;
                 field.aliases = smartField.aliases;
-                field.options = match.element.options;
+                
+                // Ensure options are properly set
+                field.options = match.element.options || [];
                 
                 console.log(`[Dynamic Options] ✅ SMART MATCH: "${field.name}" -> "${match.element.name}" (confidence: ${match.confidence})`);
-                console.log(`[Dynamic Options] ✅ Options found:`, match.element.options);
+                console.log(`[Dynamic Options] ✅ Options found:`, field.options);
+                console.log(`[Dynamic Options] 🔍 Field after update:`, {
+                  name: field.name,
+                  type: field.type,
+                  options: field.options,
+                  optionsLength: field.options?.length || 0
+                });
               } else {
                 console.log(`[Dynamic Options] ❌ No smart match found for ${field.name}`);
                 console.log(`[Dynamic Options] 🔍 Field details:`, {
@@ -320,11 +333,24 @@ export async function GET(req: Request) {
         return field;
       });
 
-      return {
-        id: form.id || form._id,
-        name: form.displayName || form.name || form.slug || form.id,
-        fields: enhancedFields
-      };
+          const finalForm = {
+            id: form.id || form._id,
+            name: form.displayName || form.name || form.slug || form.id,
+            fields: enhancedFields
+          };
+          
+          // Debug: Check if HBI Account Rep field has options
+          const hbiField = finalForm.fields.find((f: any) => f.name === 'HBI Account Rep');
+          if (hbiField) {
+            console.log(`[Dynamic Options] 🔍 Final HBI Account Rep field:`, {
+              name: hbiField.name,
+              type: hbiField.type,
+              options: hbiField.options,
+              optionsLength: hbiField.options?.length || 0
+            });
+          }
+          
+          return finalForm;
     });
 
     // Note: Scanned elements are used to provide options for existing fields only
@@ -340,6 +366,17 @@ export async function GET(req: Request) {
     }
 
     console.log(`[Dynamic Options] Returning ${enhancedForms.length} forms with dynamic options`);
+    
+    // Final debug: Check the HBI form specifically
+    const hbiForm = enhancedForms.find((f: any) => f.name.includes('HBI International'));
+    if (hbiForm) {
+      console.log(`[Dynamic Options] 🔍 Final HBI form:`, {
+        id: hbiForm.id,
+        name: hbiForm.name,
+        fieldsCount: hbiForm.fields.length,
+        hbiField: hbiForm.fields.find((f: any) => f.name === 'HBI Account Rep')
+      });
+    }
 
     return NextResponse.json({
       forms: enhancedForms,
