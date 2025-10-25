@@ -1,9 +1,9 @@
 [build]
-  # Build command for Next.js in subdirectory
-  command = "cd nextjs-app && npm ci && npm run build"
+  # Build command for Next.js (base directory already set to nextjs-app in UI)
+  command = "npm ci && npm run build"
   
   # Directory to publish (Next.js output directory)
-  publish = "nextjs-app/.next"
+  publish = ".next"
 
 [build.environment]
   # Node.js version
