@@ -8,6 +8,11 @@ type TokenRecord = {
   refreshToken?: string;
 };
 
+// Create a Map to store webflow tokens (for backward compatibility with file-based storage)
+const webflowStore = new Map<string, TokenRecord>();
+
+export default webflowStore;
+
 export async function setTokenForSite(siteId: string, record: TokenRecord) {
   try {
     // Update or create site in Xano
