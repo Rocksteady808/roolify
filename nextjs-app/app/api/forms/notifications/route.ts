@@ -76,23 +76,46 @@ export async function GET(req: Request) {
         const dynamicForms = dynamicData.forms || [];
 
         console.log(`[Forms Notifications] Found ${dynamicForms.length} forms with dynamic options`);
+        
+        // Debug: Log what we're trying to match
+        console.log(`[Forms Notifications] Xano forms:`, siteForms.map(f => ({ 
+          name: f.name, 
+          html_form_id: f.html_form_id 
+        })));
+        console.log(`[Forms Notifications] Dynamic forms:`, dynamicForms.map((f: any) => ({ 
+          id: f.id, 
+          name: f.name, 
+          fieldCount: f.fields?.length || 0 
+        })));
 
         // Match Xano forms with dynamic forms to get field details with options
         enhancedForms = siteForms.map((xanoForm: any) => {
-          // Find matching dynamic form by html_form_id
-          const dynamicForm = dynamicForms.find((df: any) =>
-            df.id === xanoForm.html_form_id
-          );
+          // Try multiple matching strategies for better reliability
+          const dynamicForm = dynamicForms.find((df: any) => {
+            // Strategy 1: Exact id match
+            if (df.id === xanoForm.html_form_id) return true;
+            
+            // Strategy 2: Name match (case-insensitive, normalized)
+            const normalize = (s: string) => s?.toLowerCase().replace(/[^a-z0-9]/g, '') || '';
+            if (normalize(df.name) === normalize(xanoForm.name)) return true;
+            
+            return false;
+          });
 
           if (dynamicForm && dynamicForm.fields) {
-            console.log(`[Forms Notifications] Enhanced form "${xanoForm.name}" with ${dynamicForm.fields.length} fields`);
+            console.log(`[Forms Notifications] ✅ MATCHED: "${xanoForm.name}" with ${dynamicForm.fields.length} fields`);
+            // Debug: Log a sample field to verify options
+            const sampleField = dynamicForm.fields.find((f: any) => f.type?.toLowerCase() === 'select' && f.options?.length > 0);
+            if (sampleField) {
+              console.log(`[Forms Notifications] Sample select field "${sampleField.name}" has ${sampleField.options.length} options:`, sampleField.options.slice(0, 3));
+            }
             return {
               ...xanoForm,
               fields: dynamicForm.fields // Fields already include options from dynamic-options API
             };
           }
 
-          console.log(`[Forms Notifications] No match found for form "${xanoForm.name}" (${xanoForm.html_form_id})`);
+          console.log(`[Forms Notifications] ❌ NO MATCH: "${xanoForm.name}" (html_form_id: ${xanoForm.html_form_id})`);
           return xanoForm;
         });
 
