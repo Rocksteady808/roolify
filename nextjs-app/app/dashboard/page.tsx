@@ -118,10 +118,9 @@ export default function DashboardPage() {
 
   useEffect(() => {
     const id = selectedSiteId || siteId;
-    if (!id || connectedSites.length === 0) return;
     
     // Store the selected site in localStorage for persistence
-    if (typeof window !== 'undefined') {
+    if (typeof window !== 'undefined' && id) {
       localStorage.setItem('selectedSiteId', id);
     }
     
@@ -129,7 +128,25 @@ export default function DashboardPage() {
     // This prevents unnecessary loading animations when just navigating to dashboard
     if (!hasInitialized) {
       setHasInitialized(true);
-    fetchForms(id);
+      
+      // If no connected sites, show empty state instead of loading forever
+      if (connectedSites.length === 0) {
+        setIsLoadingInitialData(false);
+        setIsLoadingForms(false);
+        setForms([]);
+        setError(null);
+        setIsConnected(false);
+        return;
+      }
+      
+      // Only fetch forms if we have a site ID and connected sites
+      if (id && connectedSites.length > 0) {
+        fetchForms(id);
+      } else {
+        // No site selected or no connected sites - stop loading
+        setIsLoadingInitialData(false);
+        setIsLoadingForms(false);
+      }
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSiteId, siteId, connectedSites]);
