@@ -24,9 +24,22 @@ export async function POST(req: Request) {
     const html = await response.text();
     console.log(`[Scan Site Options] Fetched ${html.length} characters of HTML`);
 
+    // ADD DEBUG LOG
+    console.log(`[Scan Site Options] 🔍 Sample HTML (first 2000 chars):`, html.substring(0, 2000));
+
     // Extract select elements with their options
     const selectElements = extractSelectElements(html);
     console.log(`[Scan Site Options] Found ${selectElements.length} select elements`);
+    
+    // ADD DEBUG LOG
+    if (selectElements.length > 0) {
+      console.log(`[Scan Site Options] ✅ Select elements found:`, JSON.stringify(selectElements, null, 2));
+    } else {
+      console.log(`[Scan Site Options] ⚠️ NO select elements found - checking HTML structure...`);
+      // Check if select tags exist at all
+      const hasSelectTags = html.includes('<select');
+      console.log(`[Scan Site Options] HTML contains <select tags:`, hasSelectTags);
+    }
 
     return NextResponse.json({
       success: true,
@@ -52,11 +65,21 @@ function extractSelectElements(html: string) {
     formId?: string;
   }> = [];
 
+  // ADD DEBUG LOG
+  console.log(`[Scan Site Options] 🔍 Starting extraction...`);
+  
   // Find all select elements with IDs
   const selectRegex = /<select\b[^>]*\bid=(["']?)([^"'\s>]+)\1[^>]*>([\s\S]*?)<\/select>/gi;
   let match;
+  let matchCount = 0;
 
   while ((match = selectRegex.exec(html)) !== null) {
+    matchCount++;
+    console.log(`[Scan Site Options] 🔍 Found select #${matchCount}:`, {
+      id: match[2],
+      fullMatch: match[0].substring(0, 200) // First 200 chars
+    });
+    
     const selectId = match[2];
     const selectContent = match[3];
     
@@ -93,9 +116,13 @@ function extractSelectElements(html: string) {
         options,
         formId
       });
+      console.log(`[Scan Site Options] ✅ Added select element "${selectName}" with ${options.length} options`);
+    } else {
+      console.log(`[Scan Site Options] ⚠️ Select element "${selectName}" has no options`);
     }
   }
 
+  console.log(`[Scan Site Options] 🔍 Extraction complete. Total elements: ${selectElements.length}`);
   return selectElements;
 }
 
