@@ -38,7 +38,7 @@ export async function GET(req: Request) {
     console.log(`[Forms Notifications] Getting forms for site: ${siteId}`);
 
     // Get authenticated user ID
-    const userId = await getCurrentUserId();
+    const userId = await getCurrentUserId(req);
     if (!userId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
