@@ -60,6 +60,7 @@ function NotificationsInner({ searchParams }: { searchParams?: { siteId?: string
   const [adminCc, setAdminCc] = useState("");
   const [adminBcc, setAdminBcc] = useState("");
   const [adminSubject, setAdminSubject] = useState("");
+  const [includePDF, setIncludePDF] = useState(false);
   const [activeTab, setActiveTab] = useState<'admin' | 'user'>('admin');
   const [animTab, setAnimTab] = useState<'admin' | 'user' | null>(null);
   const [isFading, setIsFading] = useState(false);
@@ -433,6 +434,7 @@ ${fieldsList}
         userSubject: userSubject || null,
         customValue: customValue || null,  // Save custom value
         fieldCustomValues: fieldCustomValues || null,  // Save per-field custom values
+        includePDF: includePDF,  // Save PDF setting
       };
 
       // Save to local JSON file via Next.js API
@@ -1315,6 +1317,26 @@ ${fieldsList}
                   className="w-full border px-3 py-2 rounded text-gray-800 bg-white" 
                 />
               </div>
+
+              {activeTab === 'admin' && (
+                <div className="mt-4">
+                  <div className="flex items-center space-x-2">
+                    <input 
+                      type="checkbox" 
+                      id="includePDF" 
+                      checked={includePDF}
+                      onChange={(e) => setIncludePDF(e.target.checked)}
+                      className="rounded border-gray-300 text-indigo-600 focus:ring-indigo-500"
+                    />
+                    <label htmlFor="includePDF" className="text-sm text-gray-700">
+                      📄 Attach PDF with form submission data
+                    </label>
+                  </div>
+                  <div className="text-xs text-gray-500 mt-1">
+                    Generate a professional PDF containing all submitted form data
+                  </div>
+                </div>
+              )}
 
               <div className="mt-4">
 

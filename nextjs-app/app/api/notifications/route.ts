@@ -94,6 +94,7 @@ export async function POST(req: NextRequest) {
       userSubject,
       customValue,
       fieldCustomValues,
+      includePDF,
     } = body;
 
     if (!siteId || !formId) {
@@ -135,6 +136,7 @@ export async function POST(req: NextRequest) {
       email_template: emailTemplate || null,
       admin_subject: adminSubject || null,
       user_subject: userSubject || null,
+      include_pdf: includePDF || false,  // Add PDF setting
     };
 
     // Use upsert to create or update with numeric FKs

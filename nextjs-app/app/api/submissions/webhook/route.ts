@@ -40,6 +40,19 @@ async function sendNotificationEmails(formId: string, formData: any, formName: s
     // Load notification settings from Xano
     const { xanoNotifications, xanoForms, xanoSites } = await import('@/lib/xano');
     
+    // Get site name for PDF generation
+    let siteName = 'Unknown Site';
+    if (siteId) {
+      try {
+        const site = await xanoSites.getByWebflowSiteId(siteId);
+        if (site?.site_name) {
+          siteName = site.site_name;
+        }
+      } catch (error) {
+        console.log('[Email] ⚠️ Could not fetch site name:', error);
+      }
+    }
+    
     // Find notification settings by SITE + HTML_FORM_ID
     let settings = null;
     if (siteId && htmlFormId) {
@@ -364,7 +377,9 @@ async function sendNotificationEmails(formId: string, formData: any, formName: s
           type: 'admin',
           customTemplate: settings.email_template || null,
           customValue: settings.custom_value || null,
-          fieldCustomValues: parsedFieldCustomValues || null
+          fieldCustomValues: parsedFieldCustomValues || null,
+          includePDF: settings.include_pdf || false, // Use PDF setting from notification settings
+          siteName: siteName
         });
       }
     } else {
@@ -389,7 +404,9 @@ async function sendNotificationEmails(formId: string, formData: any, formName: s
         type: 'admin',
         customTemplate: settings.email_template || null,
         customValue: settings.custom_value || null,
-        fieldCustomValues: parsedFieldCustomValues || null
+        fieldCustomValues: parsedFieldCustomValues || null,
+        includePDF: settings.include_pdf || false, // Use PDF setting from notification settings
+        siteName: siteName
       });
       
       console.log('[Email] ✅ EMERGENCY FALLBACK: Email sent to prevent silent failure');
@@ -450,7 +467,9 @@ async function sendNotificationEmails(formId: string, formData: any, formName: s
           type: 'user',
           customTemplate: settings.email_template || null,
           customValue: settings.custom_value || null,
-          fieldCustomValues: parsedFieldCustomValues || null
+          fieldCustomValues: parsedFieldCustomValues || null,
+          includePDF: false, // Disable PDF for user confirmation emails (usually not needed)
+          siteName: siteName
         });
       }
     } else {
@@ -721,6 +740,8 @@ async function sendEmailViaXano(params: {
   customTemplate?: string | null;
   customValue?: string | null;
   fieldCustomValues?: Record<string, string> | null;
+  includePDF?: boolean;
+  siteName?: string;
 }): Promise<void> {
   try {
     // Validate email address
@@ -739,21 +760,56 @@ async function sendEmailViaXano(params: {
     console.log('[Email] Subject:', params.subject);
     console.log('[Email] Email body length:', emailBody.length);
 
+    // Generate PDF if requested
+    let pdfAttachment = null;
+    if (params.includePDF) {
+      try {
+        console.log('[Email] 📄 Generating PDF attachment...');
+        const { generateFormSubmissionPDF } = await import('@/lib/pdfGenerator');
+        const pdfBuffer = await generateFormSubmissionPDF({
+          formName: params.formName,
+          submissionData: params.formData,
+          timestamp: new Date().toISOString(),
+          pageUrl: params.formData.pageUrl,
+          siteName: params.siteName
+        });
+        
+        pdfAttachment = {
+          content: pdfBuffer.toString('base64'),
+          filename: `form-submission-${params.formName.replace(/[^a-zA-Z0-9]/g, '-')}-${Date.now()}.pdf`,
+          type: 'application/pdf',
+          disposition: 'attachment'
+        };
+        console.log('[Email] ✅ PDF generated successfully:', pdfAttachment.filename);
+      } catch (pdfError) {
+        console.error('[Email] ❌ PDF generation failed:', pdfError);
+        console.log('[Email] ⚠️ Continuing without PDF attachment...');
+        // Don't fail the email if PDF generation fails
+      }
+    }
+
     // Use direct SendGrid API (bypassing broken Xano wrapper)
     const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
     const directSendGridUrl = `${baseUrl}/api/sendgrid/direct`;
 
+    const requestBody: any = {
+      to: params.to,
+      subject: params.subject,
+      htmlBody: emailBody,
+      textBody: emailBody.replace(/<[^>]*>/g, ''),
+      fromEmail: 'aaront@flexflowweb.com', // Verified SendGrid sender
+      fromName: 'Form Notifications'
+    };
+
+    // Add PDF attachment if generated
+    if (pdfAttachment) {
+      requestBody.attachments = [pdfAttachment];
+    }
+
     const response = await fetch(directSendGridUrl, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        to: params.to,
-        subject: params.subject,
-        htmlBody: emailBody,
-        textBody: emailBody.replace(/<[^>]*>/g, ''),
-        fromEmail: 'aaront@flexflowweb.com', // Verified SendGrid sender
-        fromName: 'Form Notifications'
-      })
+      body: JSON.stringify(requestBody)
     });
 
     if (!response.ok) {

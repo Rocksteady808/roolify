@@ -72,6 +72,7 @@ export interface NotificationSetting {
   email_template?: string;
   admin_subject?: string;
   user_subject?: string;
+  include_pdf?: boolean; // PDF attachment setting
   updated_at?: number;
 }
 

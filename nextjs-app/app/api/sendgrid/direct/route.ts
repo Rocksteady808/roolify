@@ -7,7 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { to, subject, htmlBody, textBody, fromEmail, fromName } = body;
+    const { to, subject, htmlBody, textBody, fromEmail, fromName, attachments } = body;
 
     console.log('[Direct SendGrid] Sending email:', {
       to,
@@ -15,7 +15,8 @@ export async function POST(req: NextRequest) {
       fromEmail: fromEmail || 'noreply@yourdomain.com',
       fromName: fromName || 'Form Notifications',
       htmlLength: htmlBody?.length || 0,
-      textLength: textBody?.length || 0
+      textLength: textBody?.length || 0,
+      attachmentCount: attachments?.length || 0
     });
 
     // SendGrid API endpoint
@@ -104,7 +105,9 @@ export async function POST(req: NextRequest) {
         sandbox_mode: {
           enable: false // Make sure this is false for production
         }
-      }
+      },
+      // Add attachments if provided
+      attachments: attachments || []
     };
 
     // Add plain text content if provided
