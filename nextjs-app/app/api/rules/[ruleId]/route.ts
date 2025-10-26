@@ -120,7 +120,8 @@ export async function DELETE(req: Request, { params }: { params: { ruleId: strin
         rule_name: ruleData.name || rule.rule_name,
         rule_id: ruleId,
         form_id: String(rule.form_id),
-        site_id: ruleData.siteId
+        site_id: ruleData.siteId,
+        user_id: rule.user_id
       });
       console.log('[DELETE /rules] Activity logged for rule deletion');
     } catch (error) {

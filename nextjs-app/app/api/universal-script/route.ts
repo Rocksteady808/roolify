@@ -55,6 +55,7 @@ export async function POST(req: Request) {
           ruleId: String(saved.id),
           formId: formId,
           siteId: siteId || '',
+          user_id: userId,
           metadata: {
             conditionCount: conditions.length,
             actionCount: actions.length

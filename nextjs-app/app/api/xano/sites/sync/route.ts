@@ -49,7 +49,8 @@ export async function POST() {
             ruleName: `Connected site: ${syncedSite.site_name}`,
             ruleId: String(syncedSite.id),
             formId: '',
-            siteId: syncedSite.webflow_site_id
+            siteId: syncedSite.webflow_site_id,
+            user_id: userId
           });
           console.log(`[Site Sync] Logged activity for site connection: ${syncedSite.site_name}`);
         } catch (activityError) {

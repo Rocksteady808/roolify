@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test Roolify Fix Locally</title>
+</head>
+<body>
+    <h1>Testing Roolify Fix Locally</h1>
+    <p>This page tests the fixed script that should filter rules properly.</p>
+    
+    <!-- Test form with fields that exist -->
+    <form id="test-form">
+        <div>
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" />
+        </div>
+        <div>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" />
+        </div>
+        <button type="submit">Submit</button>
+    </form>
+    
+    <!-- Load the FIXED script from local development server -->
+    <script src="http://localhost:3000/api/script/unified/68eb5d6db0e34d2e3ed12c0a"></script>
+    
+    <script>
+        // Test script to verify the fix
+        setTimeout(() => {
+            console.log('🧪 Testing Local Fix');
+            console.log('==================');
+            console.log('');
+            
+            if (typeof window.CONFIG !== 'undefined') {
+                console.log('✅ Script loaded successfully');
+                console.log('📊 Rules loaded:', window.CONFIG.rules.length);
+                console.log('📊 Applicable rules:', window.CONFIG.rules.length);
+                
+                if (window.CONFIG.rules.length === 0) {
+                    console.log('✅ SUCCESS: No rules applied (fields don\'t exist on this page)');
+                    console.log('✅ No debug warnings should appear');
+                } else {
+                    console.log('⚠️  Rules are still being applied');
+                }
+            } else {
+                console.log('❌ Script not loaded');
+            }
+        }, 2000);
+    </script>
+</body>
+</html>

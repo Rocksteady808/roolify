@@ -96,6 +96,7 @@ export interface Activity {
   rule_id: string;
   form_id: string;
   site_id?: string;
+  user_id?: number;
   form_name?: string;
   details?: string;
   metadata?: {
@@ -103,7 +104,6 @@ export interface Activity {
     actionCount?: number;
     status?: string;
   };
-  user_id?: number;
 }
 
 // Helper function to get auth token from localStorage
