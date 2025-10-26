@@ -20,13 +20,19 @@ export async function GET(req: NextRequest) {
     const formId = searchParams.get('formId');  // This is html_form_id from Webflow
     const siteId = searchParams.get('siteId');   // This is Webflow site ID
 
-    if (formId && siteId) {
-      console.log(`[Notifications API] GET: Loading settings for site="${siteId}", form="${formId}"`);
+    // Get current user ID for filtering
+    const currentUserId = await getCurrentUserId(req);
+    if (!currentUserId) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
 
-      // 1. Find form record by site_id + html_form_id
+    if (formId && siteId) {
+      console.log(`[Notifications API] GET: Loading settings for site="${siteId}", form="${formId}" (user ${currentUserId})`);
+
+      // 1. Find form record by site_id + html_form_id AND user_id
       const allForms = await xanoForms.getAll();
       const form = allForms.find(f => 
-        f.html_form_id === formId && f.site_id === siteId
+        f.html_form_id === formId && f.site_id === siteId && f.user_id === currentUserId
       );
       
       // 2. If form doesn't exist yet, return empty (OK - not saved yet)

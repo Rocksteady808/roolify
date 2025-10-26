@@ -63,11 +63,21 @@ export async function GET(req: Request, { params }: { params: { formId: string }
     const { formId } = params;
     if (!formId) return NextResponse.json({ error: 'formId required' }, { status: 400 });
 
+    // Get current user ID for ownership verification
+    const currentUserId = await getCurrentUserId();
+    if (!currentUserId) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
     // Fetch rules from Xano for this form
     const allRules = await xanoRules.getAll();
     
-    // Filter rules by formId - handle both numeric IDs and HTML form IDs
+    // Filter rules by formId AND user_id for complete user isolation
     const formRules = allRules.filter(rule => {
+      // First check if rule belongs to current user
+      if (rule.user_id !== currentUserId) {
+        return false;
+      }
       // Check if rule.form_id matches the numeric formId (handle both string and number)
       if (String(rule.form_id) === String(formId) || rule.form_id === parseInt(formId)) {
         return true;

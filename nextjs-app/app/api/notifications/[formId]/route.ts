@@ -27,9 +27,16 @@ export async function GET(
       );
     }
 
-    logger.debug(`Fetching notification settings for site=${siteId}, form=${formId}`);
+    // Get current user ID for filtering
+    const { getCurrentUserId } = await import('@/lib/serverAuth');
+    const currentUserId = await getCurrentUserId(req);
+    if (!currentUserId) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
 
-    // Query by site_id + html_form_id directly
+    logger.debug(`Fetching notification settings for site=${siteId}, form=${formId} (user ${currentUserId})`);
+
+    // Query by site_id + html_form_id directly (Xano should filter by user_id)
     const { xanoNotifications } = await import('@/lib/xano');
     const settings = await xanoNotifications.getBySiteAndForm(siteId, formId);
 
@@ -127,7 +134,14 @@ export async function PUT(
       );
     }
 
-    logger.debug(`Updating notification settings for site=${siteId}, form=${formId}`);
+    // Get current user ID for filtering
+    const { getCurrentUserId } = await import('@/lib/serverAuth');
+    const currentUserId = await getCurrentUserId(req);
+    if (!currentUserId) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    logger.debug(`Updating notification settings for site=${siteId}, form=${formId} (user ${currentUserId})`);
 
     // Use upsert to create or update settings
     const { xanoNotifications } = await import('@/lib/xano');
@@ -135,7 +149,7 @@ export async function PUT(
     const data = {
       site_id: siteId,
       html_form_id: formId,
-      user_id: 1, // TODO: Get from auth
+      user_id: currentUserId, // Use authenticated user ID
       admin_routes,
       user_routes,
       admin_fallback_email,

@@ -20,13 +20,21 @@ export async function GET(req: Request) {
       });
     }
 
+    // Get current user ID for filtering
+    const currentUserId = await getCurrentUserId(req);
+    if (!currentUserId) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
     // Get all forms from Xano
     const allForms = await xanoForms.getAll();
     
-    // Filter by siteId if provided
-    let siteForms = allForms.filter(form => form.site_id === siteId);
+    // Filter by BOTH siteId AND user_id for complete user isolation
+    let siteForms = allForms.filter(form => 
+      form.site_id === siteId && form.user_id === currentUserId
+    );
     
-    console.log(`[Forms Xano API] Returning ${siteForms.length} forms from Xano`);
+    console.log(`[Forms Xano API] Returning ${siteForms.length} forms from Xano for user ${currentUserId}, site ${siteId}`);
     
     return NextResponse.json({ 
       siteId, 

@@ -45,9 +45,11 @@ export async function GET(req: Request) {
 
     // Step 1: Get existing forms from Xano
     const allForms = await xanoForms.getAll();
-    const siteForms = allForms.filter(form => form.site_id === siteId);
+    const siteForms = allForms.filter(form => 
+      form.site_id === siteId && form.user_id === userId
+    );
     
-    console.log(`[Forms Notifications] Found ${siteForms.length} existing forms in Xano`);
+    console.log(`[Forms Notifications] Found ${siteForms.length} existing forms in Xano for user ${userId}`);
 
     // Step 2: If no forms exist, return empty array (no syncing)
     if (siteForms.length === 0) {

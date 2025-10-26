@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { xanoRules } from "../../../../lib/xano";
 import { logActivity } from '../../../../lib/activityStore';
+import { getCurrentUserId } from '../../../../lib/serverAuth';
 
 // Function to trigger script regeneration
 async function triggerScriptRegeneration(siteId: string) {
@@ -28,10 +29,22 @@ async function triggerScriptRegeneration(siteId: string) {
 export async function GET(req: Request, { params }: { params: { ruleId: string } }) {
   try {
     const { ruleId } = params;
+    
+    // Get current user ID for ownership verification
+    const currentUserId = await getCurrentUserId(req);
+    if (!currentUserId) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+    
     const rule = await xanoRules.getById(parseInt(ruleId));
     
     if (!rule) {
       return NextResponse.json({ error: "Rule not found" }, { status: 404 });
+    }
+    
+    // Verify rule belongs to current user
+    if (rule.user_id !== currentUserId) {
+      return NextResponse.json({ error: 'Forbidden - rule does not belong to current user' }, { status: 403 });
     }
     
     return NextResponse.json({
@@ -51,6 +64,23 @@ export async function GET(req: Request, { params }: { params: { ruleId: string }
 export async function PUT(req: Request, { params }: { params: { ruleId: string } }) {
   try {
     const { ruleId } = params;
+    
+    // Get current user ID for ownership verification
+    const currentUserId = await getCurrentUserId(req);
+    if (!currentUserId) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+    
+    // Verify rule belongs to current user before updating
+    const existingRule = await xanoRules.getById(parseInt(ruleId));
+    if (!existingRule) {
+      return NextResponse.json({ error: "Rule not found" }, { status: 404 });
+    }
+    
+    if (existingRule.user_id !== currentUserId) {
+      return NextResponse.json({ error: 'Forbidden - rule does not belong to current user' }, { status: 403 });
+    }
+    
     const updates = await req.json();
     
     const updatedRule = await xanoRules.update(parseInt(ruleId), updates);
@@ -106,10 +136,21 @@ export async function DELETE(req: Request, { params }: { params: { ruleId: strin
   try {
     const { ruleId } = params;
     
-    // Get the rule first to get the siteId
+    // Get current user ID for ownership verification
+    const currentUserId = await getCurrentUserId(req);
+    if (!currentUserId) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+    
+    // Get the rule first to get the siteId and verify ownership
     const rule = await xanoRules.getById(parseInt(ruleId));
     if (!rule) {
       return NextResponse.json({ error: "Rule not found" }, { status: 404 });
+    }
+    
+    // Verify rule belongs to current user
+    if (rule.user_id !== currentUserId) {
+      return NextResponse.json({ error: 'Forbidden - rule does not belong to current user' }, { status: 403 });
     }
     
     // Log activity for rule deletion before deleting
