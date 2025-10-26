@@ -69,7 +69,17 @@ export async function GET(req: Request) {
     try {
       console.log(`[Forms Notifications] Getting enhanced field data with options...`);
       const baseUrl = req.url.split('/api')[0];
-      const dynamicOptionsResp = await fetch(`${baseUrl}/api/forms/dynamic-options?siteId=${encodeURIComponent(siteId)}`);
+      
+      // Forward auth headers to internal API call
+      const authHeader = req.headers.get('authorization');
+      const headers: Record<string, string> = {};
+      if (authHeader) {
+        headers['authorization'] = authHeader;
+      }
+      
+      const dynamicOptionsResp = await fetch(`${baseUrl}/api/forms/dynamic-options?siteId=${encodeURIComponent(siteId)}`, {
+        headers
+      });
 
       if (dynamicOptionsResp.ok) {
         const dynamicData = await dynamicOptionsResp.json();
