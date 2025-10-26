@@ -2,18 +2,7 @@ import { NextResponse } from 'next/server';
 import { checkPlanLimit, xanoRules } from '../../../../../lib/xano';
 import { logActivity } from '../../../../../lib/activityStore';
 import { getFieldMappings, findFieldByMultipleIdentifiers } from '../../../../../lib/field-mappings';
-
-// Helper function to get current user ID from Authorization header
-async function getCurrentUserId(): Promise<number | null> {
-  try {
-    const { xanoAuth } = await import('../../../../../lib/xano');
-    const user = await xanoAuth.me();
-    return user?.id || 1; // Default to admin user if auth fails
-  } catch (error) {
-    console.error('Auth error:', error);
-    return 1; // Default to admin user
-  }
-}
+import { getCurrentUserId } from '../../../../../lib/serverAuth';
 
 // Helper function to resolve field names to technical IDs using smart mappings
 function resolveFieldIds(conditions: any[], actions: any[], siteId: string, formId: string) {
@@ -64,7 +53,7 @@ export async function GET(req: Request, { params }: { params: { formId: string }
     if (!formId) return NextResponse.json({ error: 'formId required' }, { status: 400 });
 
     // Get current user ID for ownership verification
-    const currentUserId = await getCurrentUserId();
+    const currentUserId = await getCurrentUserId(req);
     if (!currentUserId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
@@ -162,7 +151,7 @@ export async function POST(req: Request, { params }: { params: { formId: string 
     }
 
     // Get current user ID
-    const userId = await getCurrentUserId();
+    const userId = await getCurrentUserId(req);
     if (!userId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }
@@ -283,7 +272,7 @@ export async function DELETE(req: Request, { params }: { params: { formId: strin
         rule_id: ruleId,
         form_id: formId,
         site_id: activitySiteId,
-        user: await getCurrentUserId() // Xano uses 'user' field
+        user: await getCurrentUserId(req) // Xano uses 'user' field
       });
       console.log('[DELETE /form-rules] Activity logged for rule deletion');
     } catch (error) {
@@ -315,7 +304,7 @@ export async function PUT(req: Request, { params }: { params: { formId: string }
     }
 
     // Get current user ID
-    const userId = await getCurrentUserId();
+    const userId = await getCurrentUserId(req);
     if (!userId) {
       return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
     }

@@ -49,14 +49,18 @@ export async function GET(req: Request) {
     let siteUrl = '';
     
     try {
-          const token = await getTokenForSite(siteId);
+          let tokenRecord = await getTokenForSite(siteId);
+          if (!tokenRecord) {
+            throw new Error(`No token found for site ${siteId}`);
+          }
+          
           console.log(`[Dynamic Options] 🔍 Attempting Webflow Designer API for form inputs...`);
           
           // Try to get form field definitions from Designer API
           // Use the form inputs endpoint to get field definitions with options
           let designerResponse = await fetch(`https://api.webflow.com/v2/sites/${siteId}/form-inputs`, {
             headers: {
-              'Authorization': `Bearer ${token}`,
+              'Authorization': `Bearer ${tokenRecord.token}`,
               'Accept-Version': '2.0.0',
               'Content-Type': 'application/json',
             },
@@ -64,12 +68,31 @@ export async function GET(req: Request) {
 
           console.log(`[Dynamic Options] Designer API response status: ${designerResponse.status}`);
 
+          // If we get a 401, try refreshing the token and retry once
+          if (designerResponse.status === 401) {
+            console.log(`[Dynamic Options] ⚠️ 401 Unauthorized - refreshing token and retrying...`);
+            const { refreshWebflowToken } = await import('@/lib/webflowStore');
+            tokenRecord = await refreshWebflowToken(siteId);
+            
+            if (tokenRecord) {
+              console.log(`[Dynamic Options] 🔄 Retrying with refreshed token...`);
+              designerResponse = await fetch(`https://api.webflow.com/v2/sites/${siteId}/form-inputs`, {
+                headers: {
+                  'Authorization': `Bearer ${tokenRecord.token}`,
+                  'Accept-Version': '2.0.0',
+                  'Content-Type': 'application/json',
+                },
+              });
+              console.log(`[Dynamic Options] Designer API retry response status: ${designerResponse.status}`);
+            }
+          }
+
           // If that doesn't work, try the forms endpoint
           if (!designerResponse.ok) {
             console.log(`[Dynamic Options] Form inputs endpoint failed (${designerResponse.status}), trying forms endpoint...`);
             designerResponse = await fetch(`https://api.webflow.com/v2/sites/${siteId}/forms`, {
               headers: {
-                'Authorization': `Bearer ${token}`,
+                'Authorization': `Bearer ${tokenRecord.token}`,
                 'Accept-Version': '2.0.0',
                 'Content-Type': 'application/json',
               },
@@ -138,11 +161,14 @@ export async function GET(req: Request) {
           console.log(`[Dynamic Options] 🔄 Designer API didn't provide options, trying CMS API...`);
           
           try {
-            const token = await getTokenForSite(siteId);
+            let tokenRecord = await getTokenForSite(siteId);
+            if (!tokenRecord) {
+              throw new Error(`No token found for site ${siteId}`);
+            }
             // Try to get collections and their fields
             const collectionsResponse = await fetch(`https://api.webflow.com/v2/sites/${siteId}/collections`, {
               headers: {
-                'Authorization': `Bearer ${token}`,
+                'Authorization': `Bearer ${tokenRecord.token}`,
                 'Accept-Version': '2.0.0',
                 'Content-Type': 'application/json',
               },
@@ -202,10 +228,13 @@ export async function GET(req: Request) {
           }
         }
         
-        const token = await getTokenForSite(siteId);
+        let tokenRecord = await getTokenForSite(siteId);
+        if (!tokenRecord) {
+          throw new Error(`No token found for site ${siteId}`);
+        }
         const siteInfoResponse = await fetch(`https://api.webflow.com/v2/sites/${siteId}`, {
               headers: {
-                'Authorization': `Bearer ${token}`,
+                'Authorization': `Bearer ${tokenRecord.token}`,
                 'Accept-Version': '2.0.0',
                 'Content-Type': 'application/json',
               },

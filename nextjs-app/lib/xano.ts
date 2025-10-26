@@ -156,20 +156,26 @@ export async function xanoRequest<T>(
 ): Promise<T> {
   const token = getAuthToken();
   const apiToken = process.env.XANO_API_TOKEN;
+  const isServerSide = typeof window === 'undefined';
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(options.headers as Record<string, string>),
   };
 
-  // Add API token for server-side requests
+  // Add API token for server-side requests (higher priority)
   if (apiToken) {
     headers['Authorization'] = `Bearer ${apiToken}`;
+    console.log(`[Xano Request] ${options.method || 'GET'} ${url}`);
+    console.log(`[Xano Request] Auth: API token (server-side)`);
   } else if (token) {
     headers['Authorization'] = `Bearer ${token}`;
+    console.log(`[Xano Request] ${options.method || 'GET'} ${url}`);
+    console.log(`[Xano Request] Auth: User token (${isServerSide ? 'server-side' : 'client-side'})`);
+  } else {
+    console.log(`[Xano Request] ${options.method || 'GET'} ${url}`);
+    console.warn(`[Xano Request] Auth: No token available`);
   }
 
-  console.log(`[Xano Request] ${options.method || 'GET'} ${url}`);
-  console.log(`[Xano Request] Has token:`, !!token);
   if (options.body) {
     console.log(`[Xano Request] Body:`, options.body);
   }
