@@ -780,19 +780,23 @@ ${fieldsList}
     
     setIsLoadingForms(true);
     try {
-      const formsResp = await safeFetch(`/api/forms/dynamic-options?siteId=${encodeURIComponent(siteId)}`);
+      // Use notifications endpoint which fetches from Xano with user_id filtering
+      const formsResp = await safeFetch(`/api/forms/notifications?siteId=${encodeURIComponent(siteId)}`);
       if (formsResp && formsResp.ok) {
         const formsData = await formsResp.json();
+        // Response already has forms array, use it directly
         const formsArray = formsData.forms || [];
+        
+        console.log(`[Notifications] Loaded ${formsArray.length} forms from notifications endpoint`);
         
         if (formsArray.length > 0) {
           const transformedForms = formsArray.map((form: any) => ({
-            id: form.id,
+            id: form.html_form_id || form.id,  // Use html_form_id from Xano
             name: form.name,
             fields: form.fields || []
           }));
           
-          // Filter out test forms
+          // Filter out test forms (backend already filters utility pages)
           const filteredForms = transformedForms.filter((form: any) =>
             !form.name.toLowerCase().includes('test')
           );
@@ -807,10 +811,12 @@ ${fieldsList}
             localStorage.setItem('roolify_forms_cache', JSON.stringify(newCache));
           }
         } else {
+          console.log('[Notifications] No forms found in Xano for this site');
           setForms([]);
           setIsLoadingForms(false);
         }
       } else {
+        console.log('[Notifications] Failed to fetch forms from notifications endpoint');
         setForms([]);
         setIsLoadingForms(false);
       }
@@ -830,9 +836,8 @@ ${fieldsList}
       const cacheBuster = `&_refresh=${Date.now()}`;
       console.log('[Notifications Refresh] Force refreshing with cache buster');
 
-      // Use the same endpoint as dashboard to get forms (no authentication required)
-      // IMPORTANT: Never use endpoints that might trigger form.sync() during notification settings
-      const formsResp = await safeFetch(`/api/forms/dynamic-options?siteId=${encodeURIComponent(siteId)}${cacheBuster}`);
+      // Use notifications endpoint which fetches from Xano with user_id filtering
+      const formsResp = await safeFetch(`/api/forms/notifications?siteId=${encodeURIComponent(siteId)}${cacheBuster}`);
       if (formsResp && formsResp.ok) {
         const formsData = await formsResp.json();
         const formsArray = formsData.forms || [];
@@ -846,9 +851,9 @@ ${fieldsList}
         if (formsArray.length > 0) {
           // Transform forms to match the expected format
           const transformedForms = formsArray.map((form: any) => ({
-            id: form.id, // Use the actual form ID from dynamic-options API
+            id: form.html_form_id || form.id, // Use html_form_id from Xano
             name: form.name,
-            fields: form.fields || [] // Use the actual fields from dynamic-options API
+            fields: form.fields || []
           }));
 
           const filteredForms = transformedForms.filter((form: any) =>
@@ -856,7 +861,11 @@ ${fieldsList}
           );
           setForms(filteredForms);
           // Update cache with refreshed forms
-          // Cache removed - no longer needed
+          const newCache = { ...globalFormCache, [siteId]: filteredForms };
+          setGlobalFormCache(newCache);
+          if (typeof window !== 'undefined') {
+            localStorage.setItem('roolify_forms_cache', JSON.stringify(newCache));
+          }
           addToast({ type: 'success', message: 'Forms refreshed successfully!' });
 
           // Set successful refresh timestamp
@@ -868,7 +877,7 @@ ${fieldsList}
           setForms([]);
           addToast({ 
             type: 'info', 
-            message: 'No forms found for this site. Forms are automatically loaded from your Webflow site.' 
+            message: 'No forms found in Xano. Please sync forms from the dashboard first.' 
           });
           setLastSuccessfulRefresh(Date.now());
           setIsRefreshing(false);
