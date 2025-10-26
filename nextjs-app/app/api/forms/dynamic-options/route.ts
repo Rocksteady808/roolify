@@ -32,8 +32,21 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'Site not found or access denied' }, { status: 403 });
     }
 
-    // Get the working Webflow forms data
-    const webflowResponse = await fetch(`${req.url.split('/api')[0]}/api/webflow/site/${siteId}/forms`);
+    // Get the working Webflow forms data with token refresh retry
+    let webflowResponse = await fetch(`${req.url.split('/api')[0]}/api/webflow/site/${siteId}/forms`);
+    
+    // If 401, refresh token and retry
+    if (webflowResponse.status === 401) {
+      console.log('[Dynamic Options] ⚠️ 401 Unauthorized - refreshing token and retrying...');
+      const { refreshWebflowToken } = await import('@/lib/webflowStore');
+      const refreshed = await refreshWebflowToken(siteId);
+      
+      if (refreshed) {
+        console.log('[Dynamic Options] 🔄 Retrying with refreshed token...');
+        webflowResponse = await fetch(`${req.url.split('/api')[0]}/api/webflow/site/${siteId}/forms`);
+      }
+    }
+    
     if (!webflowResponse.ok) {
       throw new Error(`Webflow API error: ${webflowResponse.status}`);
     }
@@ -49,14 +62,19 @@ export async function GET(req: Request) {
     let siteUrl = '';
     
     try {
-          const token = await getTokenForSite(siteId);
+          let tokenRecord = await getTokenForSite(siteId);
+          if (!tokenRecord || !tokenRecord.token) {
+            console.log(`[Dynamic Options] ⚠️ No token found for site ${siteId}`);
+            throw new Error(`No token found for site ${siteId}`);
+          }
+          
           console.log(`[Dynamic Options] 🔍 Attempting Webflow Designer API for form inputs...`);
           
           // Try to get form field definitions from Designer API
           // Use the form inputs endpoint to get field definitions with options
           let designerResponse = await fetch(`https://api.webflow.com/v2/sites/${siteId}/form-inputs`, {
             headers: {
-              'Authorization': `Bearer ${token}`,
+              'Authorization': `Bearer ${tokenRecord.token}`,
               'Accept-Version': '2.0.0',
               'Content-Type': 'application/json',
             },
@@ -64,12 +82,31 @@ export async function GET(req: Request) {
 
           console.log(`[Dynamic Options] Designer API response status: ${designerResponse.status}`);
 
+          // If we get a 401, try refreshing the token and retry
+          if (designerResponse.status === 401) {
+            console.log(`[Dynamic Options] ⚠️ 401 Unauthorized - refreshing token and retrying...`);
+            const { refreshWebflowToken } = await import('@/lib/webflowStore');
+            tokenRecord = await refreshWebflowToken(siteId);
+            
+            if (tokenRecord) {
+              console.log(`[Dynamic Options] 🔄 Retrying with refreshed token...`);
+              designerResponse = await fetch(`https://api.webflow.com/v2/sites/${siteId}/form-inputs`, {
+                headers: {
+                  'Authorization': `Bearer ${tokenRecord.token}`,
+                  'Accept-Version': '2.0.0',
+                  'Content-Type': 'application/json',
+                },
+              });
+              console.log(`[Dynamic Options] Designer API retry response status: ${designerResponse.status}`);
+            }
+          }
+
           // If that doesn't work, try the forms endpoint
           if (!designerResponse.ok) {
             console.log(`[Dynamic Options] Form inputs endpoint failed (${designerResponse.status}), trying forms endpoint...`);
             designerResponse = await fetch(`https://api.webflow.com/v2/sites/${siteId}/forms`, {
               headers: {
-                'Authorization': `Bearer ${token}`,
+                'Authorization': `Bearer ${tokenRecord.token}`,
                 'Accept-Version': '2.0.0',
                 'Content-Type': 'application/json',
               },
