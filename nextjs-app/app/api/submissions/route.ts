@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { logger } from '@/lib/logger';
+import { getCurrentUserId } from '@/lib/serverAuth';
 
 /**
  * Get all submissions
@@ -13,9 +14,9 @@ export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
     const formIdFilter = searchParams.get('formId');
 
-    // Get auth token from request headers
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
+    // Get current user ID for filtering
+    const currentUserId = await getCurrentUserId(req);
+    if (!currentUserId) {
       return NextResponse.json(
         {
           success: false,
@@ -27,7 +28,21 @@ export async function GET(req: Request) {
       );
     }
 
-    logger.debug('Fetching submissions from Xano');
+    logger.debug(`Fetching submissions for user ${currentUserId}`);
+
+    // Get auth token from request headers for Xano API
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: 'Authorization header required',
+          submissions: [],
+          count: 0
+        },
+        { status: 401 }
+      );
+    }
 
     // Fetch all submissions from Xano with auth token
     const MAIN_BASE_URL = process.env.NEXT_PUBLIC_XANO_API_BASE_URL || 'https://x1zj-piqu-kkh1.n7e.xano.io/api:sb2RCLwj';
@@ -44,18 +59,22 @@ export async function GET(req: Request) {
 
     const submissions = await response.json();
     
-    logger.debug(`Found ${submissions.length} submissions`);
+    logger.debug(`Found ${submissions.length} submissions from Xano`);
 
-    // Parse submission_data from JSON string
-    const parsedSubmissions = submissions.map((sub: any) => ({
-      id: sub.id,
-      created_at: sub.created_at,
-      form_id: sub.form_id,
-      user_id: sub.user_id,
-      data: typeof sub.submission_data === 'string'
-        ? JSON.parse(sub.submission_data)
-        : sub.submission_data
-    }));
+    // Parse submission_data from JSON string and filter by user_id
+    const parsedSubmissions = submissions
+      .map((sub: any) => ({
+        id: sub.id,
+        created_at: sub.created_at,
+        form_id: sub.form_id,
+        user_id: sub.user_id,
+        data: typeof sub.submission_data === 'string'
+          ? JSON.parse(sub.submission_data)
+          : sub.submission_data
+      }))
+      .filter((sub: any) => sub.user_id === currentUserId); // User isolation
+
+    logger.debug(`Filtered to ${parsedSubmissions.length} submissions for user ${currentUserId}`);
 
     // Filter by formId if provided
     let filteredSubmissions = parsedSubmissions;

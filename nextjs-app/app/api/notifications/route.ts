@@ -57,11 +57,12 @@ export async function GET(req: NextRequest) {
       console.log('[Notifications API] GET: Both formId and siteId are required');
       return NextResponse.json({});
     } else {
-      // Get all settings from Xano
-      console.log('[Notifications API] GET: Loading all notification settings');
+      // Get all settings from Xano and filter by current user
+      console.log('[Notifications API] GET: Loading notification settings for current user');
       const allSettings = await xanoNotifications.getAll();
-      console.log(`[Notifications API] Found ${allSettings.length} notification settings`);
-      return NextResponse.json(allSettings);
+      const userSettings = allSettings.filter(s => s.user === currentUserId);
+      console.log(`[Notifications API] Found ${userSettings.length} notification settings for user ${currentUserId} from ${allSettings.length} total`);
+      return NextResponse.json(userSettings);
     }
   } catch (error) {
     console.error('[Notifications API] Error loading settings:', error);

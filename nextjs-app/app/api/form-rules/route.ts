@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { xanoRules } from '../../../lib/xano';
+import { getCurrentUserId } from '../../../lib/serverAuth';
 
 /**
  * Global rules endpoint that fetches from Xano
@@ -18,11 +19,23 @@ export async function GET(req: Request) {
     
     console.log(`[GET /form-rules] Fetching rules from Xano - siteId: ${siteId}, formId: ${formId}, activeOnly: ${activeOnly}`);
     
+    // Get current user for filtering
+    const currentUserId = await getCurrentUserId(req);
+    if (!currentUserId) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    console.log(`[GET /form-rules] Fetching rules for user ${currentUserId}`);
+
     // Fetch all rules from Xano
     const allRules = await xanoRules.getAll();
+
+    // Filter by user_id immediately for security
+    const userRules = allRules.filter(rule => rule.user_id === currentUserId);
+    console.log(`[GET /form-rules] Filtered to ${userRules.length} rules for user ${currentUserId} from ${allRules.length} total`);
     
     // Convert Xano rules to expected format
-    let rules = allRules.map(rule => {
+    let rules = userRules.map(rule => {
       try {
         let ruleData;
         if (typeof rule.rule_data === 'string') {
