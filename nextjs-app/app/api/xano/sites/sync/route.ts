@@ -46,11 +46,11 @@ export async function POST() {
         try {
           await logActivity({
             type: 'site_connected',
-            ruleName: `Connected site: ${syncedSite.site_name}`,
-            ruleId: String(syncedSite.id),
-            formId: '',
-            siteId: syncedSite.webflow_site_id,
-            user_id: userId
+            rule_name: `Connected site: ${syncedSite.site_name}`,
+            rule_id: String(syncedSite.id),
+            form_id: '',
+            site_id: syncedSite.webflow_site_id,
+            user: userId // Xano uses 'user' field
           });
           console.log(`[Site Sync] Logged activity for site connection: ${syncedSite.site_name}`);
         } catch (activityError) {

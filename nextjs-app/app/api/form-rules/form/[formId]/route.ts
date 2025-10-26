@@ -214,7 +214,7 @@ export async function POST(req: Request, { params }: { params: { formId: string 
         rule_id: String(savedRule.id),
         form_id: formId,
         site_id: siteId,
-        user_id: userId,
+        user: userId, // Xano uses 'user' field
         metadata: {
           conditionCount: conditions.length,
           actionCount: actions.length,
@@ -283,7 +283,7 @@ export async function DELETE(req: Request, { params }: { params: { formId: strin
         rule_id: ruleId,
         form_id: formId,
         site_id: activitySiteId,
-        user_id: await getCurrentUserId()
+        user: await getCurrentUserId() // Xano uses 'user' field
       });
       console.log('[DELETE /form-rules] Activity logged for rule deletion');
     } catch (error) {
@@ -357,7 +357,7 @@ export async function PUT(req: Request, { params }: { params: { formId: string }
         rule_id: String(updatedRule.id),
         form_id: formId,
         site_id: body.siteId,
-        user_id: userId,
+        user: userId, // Xano uses 'user' field
         metadata: {
           conditionCount: conditions.length,
           actionCount: actions.length,

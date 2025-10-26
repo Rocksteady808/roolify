@@ -162,7 +162,7 @@ export async function DELETE(req: Request, { params }: { params: { ruleId: strin
         rule_id: ruleId,
         form_id: String(rule.form_id),
         site_id: ruleData.siteId,
-        user_id: rule.user_id
+        user: rule.user_id // Xano uses 'user' field
       });
       console.log('[DELETE /rules] Activity logged for rule deletion');
     } catch (error) {

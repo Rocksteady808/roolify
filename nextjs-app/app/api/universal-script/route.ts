@@ -51,11 +51,11 @@ export async function POST(req: Request) {
       try {
         await logActivity({
           type: 'rule_created',
-          ruleName: saved.rule_name,
-          ruleId: String(saved.id),
-          formId: formId,
-          siteId: siteId || '',
-          user_id: userId,
+          rule_name: saved.rule_name,
+          rule_id: String(saved.id),
+          form_id: formId,
+          site_id: siteId || '',
+          user: userId, // Xano uses 'user' field, not 'user_id'
           metadata: {
             conditionCount: conditions.length,
             actionCount: actions.length

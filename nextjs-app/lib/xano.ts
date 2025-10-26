@@ -97,7 +97,8 @@ export interface Activity {
   rule_id: string;
   form_id: string;
   site_id?: string;
-  user_id?: number;
+  user_id?: number; // Client-side uses user_id, but maps to 'user' in Xano
+  user?: number;    // Xano field name
   form_name?: string;
   details?: string;
   metadata?: {
