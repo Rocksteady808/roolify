@@ -162,18 +162,7 @@ export async function GET(
       }
     }
 
-    // DEBUG: Show what we couldn't find
-    console.warn('[Roolify] 🔍 DEBUG: Could not find field "' + fieldId + '". Tried:');
-    console.warn('[Roolify] 🔍 DEBUG:   - getElementById("' + fieldId + '")');
-    console.warn('[Roolify] 🔍 DEBUG:   - getElementById("' + cleanId + '")');
-    console.warn('[Roolify] 🔍 DEBUG:   - querySelector([name="' + fieldId + '"])');
-    console.warn('[Roolify] 🔍 DEBUG:   - querySelector([data-name="' + fieldId + '"])');
-    console.warn('[Roolify] 🔍 DEBUG:   - Case-insensitive matching');
-    console.warn('[Roolify] 🔍 DEBUG:   - Partial matching (base: "' + baseId + '")');
-    console.warn('[Roolify] 🔍 DEBUG:   - Label text matching');
-    console.warn('[Roolify] 🔍 DEBUG:   - Placeholder matching');
-    console.warn('[Roolify] 🔍 DEBUG:   - Fuzzy matching');
-
+    // Field not found - return null silently (rules are now filtered before execution)
     return null;
   }
   
@@ -483,23 +472,70 @@ export async function GET(
       console.log('[Roolify] 🔍 DEBUG: Form ' + (index + 1) + ':', formId);
     });
 
-    // DEBUG: Show what fields each rule is looking for
-    console.log('[Roolify] 🔍 DEBUG: Rules are looking for these fields:');
-    CONFIG.rules.forEach((rule) => {
-      if (rule.isActive !== false) {
-        console.log('[Roolify] 🔍 DEBUG: Rule "' + rule.name + '":');
-        rule.conditions.forEach((cond) => {
-          const found = findField(cond.fieldId);
-          console.log('[Roolify] 🔍 DEBUG:   - Condition field: ' + cond.fieldId + (found ? ' ✓ FOUND' : ' ✗ NOT FOUND'));
-        });
-        rule.actions.forEach((action) => {
-          const found = findField(action.targetFieldId);
-          console.log('[Roolify] 🔍 DEBUG:   - Action target: ' + action.targetFieldId + (found ? ' ✓ FOUND' : ' ✗ NOT FOUND'));
-        });
-      }
+    // Filter rules to only include those that can be applied on this page
+    const applicableRules = CONFIG.rules.filter(rule => {
+      if (rule.isActive === false) return false;
+      
+      // Check if all condition fields exist on this page
+      const allConditionFieldsExist = rule.conditions.every(cond => {
+        const field = findField(cond.fieldId);
+        return field !== null;
+      });
+      
+      // Check if all action target fields exist on this page
+      const allActionTargetsExist = rule.actions.every(action => {
+        const field = findField(action.targetFieldId);
+        return field !== null;
+      });
+      
+      return allConditionFieldsExist && allActionTargetsExist;
     });
 
-    // Execute rules on page load
+    console.log('[Roolify] 🔍 DEBUG: Filtered rules for this page:');
+    console.log('[Roolify] 🔍 DEBUG: Total rules:', CONFIG.rules.length);
+    console.log('[Roolify] 🔍 DEBUG: Applicable rules:', applicableRules.length);
+    console.log('[Roolify] 🔍 DEBUG: Skipped rules:', CONFIG.rules.length - applicableRules.length);
+
+    // Show which rules were skipped and why
+    const skippedRules = CONFIG.rules.filter(rule => {
+      if (rule.isActive === false) return false;
+      
+      const allConditionFieldsExist = rule.conditions.every(cond => {
+        const field = findField(cond.fieldId);
+        return field !== null;
+      });
+      
+      const allActionTargetsExist = rule.actions.every(action => {
+        const field = findField(action.targetFieldId);
+        return field !== null;
+      });
+      
+      return !(allConditionFieldsExist && allActionTargetsExist);
+    });
+
+    if (skippedRules.length > 0) {
+      console.log('[Roolify] 🔍 DEBUG: Skipped rules (fields not found on this page):');
+      skippedRules.forEach(rule => {
+        console.log('[Roolify] 🔍 DEBUG: Skipped rule: "' + rule.name + '"');
+        rule.conditions.forEach(cond => {
+          const found = findField(cond.fieldId);
+          if (!found) {
+            console.log('[Roolify] 🔍 DEBUG:   - Missing condition field: ' + cond.fieldId);
+          }
+        });
+        rule.actions.forEach(action => {
+          const found = findField(action.targetFieldId);
+          if (!found) {
+            console.log('[Roolify] 🔍 DEBUG:   - Missing action target: ' + action.targetFieldId);
+          }
+        });
+      });
+    }
+
+    // Update CONFIG to only include applicable rules
+    CONFIG.rules = applicableRules;
+
+    // Execute only applicable rules
     executeAllRules();
 
     // Debounce function to prevent excessive rule execution
