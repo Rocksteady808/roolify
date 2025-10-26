@@ -234,11 +234,33 @@ function generateUniversalScript(rules: any[], siteId: string, baseUrl?: string)
     
     // Set up event listeners for form interactions
     const forms = document.querySelectorAll('form');
+    
+    // Debounce function to prevent excessive rule execution
+    let debounceTimer;
+    function debounce(func, wait) {
+      return function() {
+        clearTimeout(debounceTimer);
+        debounceTimer = setTimeout(func, wait);
+      };
+    }
+    
+    // Create debounced version of rule execution
+    const debouncedExecuteRules = debounce(() => {
+      CONFIG.rules.forEach(executeRule);
+    }, 150);
+    
     forms.forEach(form => {
-      // Listen for input changes
+      // Listen for input changes with debouncing for text inputs
       form.addEventListener('input', function(event) {
         console.log('[Roolify] Input change detected:', event.target.id || event.target.name);
-        CONFIG.rules.forEach(executeRule);
+        
+        // Use debounced execution for text inputs to reduce lag
+        if (event.target.matches('input[type="text"], input[type="email"], input[type="number"], textarea')) {
+          debouncedExecuteRules();
+        } else {
+          // Execute immediately for non-text inputs (selects, checkboxes, radios)
+          CONFIG.rules.forEach(executeRule);
+        }
       });
       
       // Listen for select changes
