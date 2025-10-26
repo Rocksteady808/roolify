@@ -202,7 +202,11 @@ export const xanoAuth = {
    */
   async login(email: string, password: string): Promise<{ authToken: string }> {
     // Use Next.js API route proxy to avoid CORS issues
-    const response = await fetch('/api/auth/login', {
+    const baseUrl = typeof window !== 'undefined' 
+      ? '' 
+      : process.env.NEXT_PUBLIC_SITE_URL || 'https://roolify.netlify.app';
+      
+    const response = await fetch(`${baseUrl}/api/auth/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -229,7 +233,11 @@ export const xanoAuth = {
     password: string
   ): Promise<{ authToken: string }> {
     // Use Next.js API route proxy to avoid CORS issues
-    const response = await fetch('/api/auth/signup', {
+    const baseUrl = typeof window !== 'undefined' 
+      ? '' 
+      : process.env.NEXT_PUBLIC_SITE_URL || 'https://roolify.netlify.app';
+      
+    const response = await fetch(`${baseUrl}/api/auth/signup`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -253,7 +261,13 @@ export const xanoAuth = {
   async me(): Promise<User> {
     // Use Next.js API route proxy to avoid CORS issues
     const token = getAuthToken();
-    const response = await fetch('/api/auth/me', {
+    
+    // Use absolute URL for server-side calls
+    const baseUrl = typeof window !== 'undefined' 
+      ? '' 
+      : process.env.NEXT_PUBLIC_SITE_URL || 'https://roolify.netlify.app';
+    
+    const response = await fetch(`${baseUrl}/api/auth/me`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${token}`,
@@ -314,7 +328,11 @@ export const xanoAuth = {
    */
   async sendPasswordReset(email: string): Promise<{ success: boolean }> {
     // Use Next.js API route proxy instead of direct Xano call
-    const response = await fetch('/api/auth/forgot-password', {
+    const baseUrl = typeof window !== 'undefined' 
+      ? '' 
+      : process.env.NEXT_PUBLIC_SITE_URL || 'https://roolify.netlify.app';
+      
+    const response = await fetch(`${baseUrl}/api/auth/forgot-password`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -335,7 +353,11 @@ export const xanoAuth = {
    */
   async resetPassword(token: string, newPassword: string): Promise<{ success: boolean }> {
     // Use Next.js API route proxy instead of direct Xano call
-    const response = await fetch('/api/auth/reset-password', {
+    const baseUrl = typeof window !== 'undefined' 
+      ? '' 
+      : process.env.NEXT_PUBLIC_SITE_URL || 'https://roolify.netlify.app';
+      
+    const response = await fetch(`${baseUrl}/api/auth/reset-password`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
