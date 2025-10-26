@@ -35,15 +35,26 @@ export async function GET(req: Request) {
     // Get the working Webflow forms data with token refresh retry
     let webflowResponse = await fetch(`${req.url.split('/api')[0]}/api/webflow/site/${siteId}/forms`);
     
-    // If 401, refresh token and retry
+    // If 401, refresh token and retry (only if we have a refresh token)
     if (webflowResponse.status === 401) {
-      console.log('[Dynamic Options] ⚠️ 401 Unauthorized - refreshing token and retrying...');
+      console.log('[Dynamic Options] ⚠️ 401 Unauthorized - attempting token refresh...');
       const { refreshWebflowToken } = await import('@/lib/webflowStore');
       const refreshed = await refreshWebflowToken(siteId);
       
       if (refreshed) {
-        console.log('[Dynamic Options] 🔄 Retrying with refreshed token...');
+        console.log('[Dynamic Options] 🔄 Token refreshed successfully, retrying...');
         webflowResponse = await fetch(`${req.url.split('/api')[0]}/api/webflow/site/${siteId}/forms`);
+      } else {
+        // No refresh token available - site needs to be re-authenticated
+        console.error('[Dynamic Options] ❌ No refresh token available - site needs re-authentication');
+        return NextResponse.json(
+          { 
+            error: 'Site authentication expired. Please reconnect your Webflow site.',
+            requiresReauth: true,
+            siteId 
+          },
+          { status: 401 }
+        );
       }
     }
     
