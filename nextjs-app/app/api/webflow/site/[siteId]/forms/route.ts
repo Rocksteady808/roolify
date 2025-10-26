@@ -1,11 +1,29 @@
 import { NextResponse } from 'next/server';
 import { getTokenForSite } from "../../../../../../lib/webflowStore";
 import { logger } from '@/lib/logger';
+import { getCurrentUserId } from '@/lib/serverAuth';
 
 export async function GET(req: Request, { params }: { params: { siteId: string } }) {
   try {
     const { siteId } = params;
     if (!siteId) return NextResponse.json({ error: "siteId required" }, { status: 400 });
+
+    // 🔒 USER ISOLATION: Verify user authentication and site ownership
+    const currentUserId = await getCurrentUserId(req);
+    if (!currentUserId) {
+      return NextResponse.json({ error: 'Authentication required' }, { status: 401 });
+    }
+
+    // Verify user owns this site
+    const { xanoSites } = await import('@/lib/xano');
+    const allSites = await xanoSites.getAll();
+    const userSite = allSites.find(site => 
+      site.webflow_site_id === siteId && site.user_id === currentUserId
+    );
+    
+    if (!userSite) {
+      return NextResponse.json({ error: 'Site not found or access denied' }, { status: 403 });
+    }
 
     // Check for bypass mode for diagnosis
     const url = new URL(req.url);
