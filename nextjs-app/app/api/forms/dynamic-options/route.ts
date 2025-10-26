@@ -49,18 +49,14 @@ export async function GET(req: Request) {
     let siteUrl = '';
     
     try {
-          let tokenRecord = await getTokenForSite(siteId);
-          if (!tokenRecord) {
-            throw new Error(`No token found for site ${siteId}`);
-          }
-          
+          const token = await getTokenForSite(siteId);
           console.log(`[Dynamic Options] 🔍 Attempting Webflow Designer API for form inputs...`);
           
           // Try to get form field definitions from Designer API
           // Use the form inputs endpoint to get field definitions with options
           let designerResponse = await fetch(`https://api.webflow.com/v2/sites/${siteId}/form-inputs`, {
             headers: {
-              'Authorization': `Bearer ${tokenRecord.token}`,
+              'Authorization': `Bearer ${token}`,
               'Accept-Version': '2.0.0',
               'Content-Type': 'application/json',
             },
@@ -68,31 +64,12 @@ export async function GET(req: Request) {
 
           console.log(`[Dynamic Options] Designer API response status: ${designerResponse.status}`);
 
-          // If we get a 401, try refreshing the token and retry once
-          if (designerResponse.status === 401) {
-            console.log(`[Dynamic Options] ⚠️ 401 Unauthorized - refreshing token and retrying...`);
-            const { refreshWebflowToken } = await import('@/lib/webflowStore');
-            tokenRecord = await refreshWebflowToken(siteId);
-            
-            if (tokenRecord) {
-              console.log(`[Dynamic Options] 🔄 Retrying with refreshed token...`);
-              designerResponse = await fetch(`https://api.webflow.com/v2/sites/${siteId}/form-inputs`, {
-                headers: {
-                  'Authorization': `Bearer ${tokenRecord.token}`,
-                  'Accept-Version': '2.0.0',
-                  'Content-Type': 'application/json',
-                },
-              });
-              console.log(`[Dynamic Options] Designer API retry response status: ${designerResponse.status}`);
-            }
-          }
-
           // If that doesn't work, try the forms endpoint
           if (!designerResponse.ok) {
             console.log(`[Dynamic Options] Form inputs endpoint failed (${designerResponse.status}), trying forms endpoint...`);
             designerResponse = await fetch(`https://api.webflow.com/v2/sites/${siteId}/forms`, {
               headers: {
-                'Authorization': `Bearer ${tokenRecord.token}`,
+                'Authorization': `Bearer ${token}`,
                 'Accept-Version': '2.0.0',
                 'Content-Type': 'application/json',
               },
@@ -161,14 +138,11 @@ export async function GET(req: Request) {
           console.log(`[Dynamic Options] 🔄 Designer API didn't provide options, trying CMS API...`);
           
           try {
-            let tokenRecord = await getTokenForSite(siteId);
-            if (!tokenRecord) {
-              throw new Error(`No token found for site ${siteId}`);
-            }
+            const token = await getTokenForSite(siteId);
             // Try to get collections and their fields
             const collectionsResponse = await fetch(`https://api.webflow.com/v2/sites/${siteId}/collections`, {
               headers: {
-                'Authorization': `Bearer ${tokenRecord.token}`,
+                'Authorization': `Bearer ${token}`,
                 'Accept-Version': '2.0.0',
                 'Content-Type': 'application/json',
               },
@@ -202,103 +176,86 @@ export async function GET(req: Request) {
           }
         }
 
-        // Strategy 3: Scan each form's specific page for select options
-    console.log(`[Dynamic Options] 📊 Current selectOptions length: ${selectOptions.length}`);
-    console.log(`[Dynamic Options] 📊 Will run page scanning: ${selectOptions.length === 0}`);
-    if (selectOptions.length === 0) {
-      console.log(`[Dynamic Options] 🔄 No API options found, trying page-specific scanning...`);
-      console.log(`[Dynamic Options] 🔄 Scanning ${webflowForms.length} forms...`);
-      
-      // Scan common form pages for this site
-      try {
-        // TEMPORARY: Hard-code the URL for Flex Flow Web site
-        if (siteId === '652b10ed79cbf4ed07a349ed') {
-          console.log(`[Dynamic Options] 🔍 Scanning hard-coded URL: https://www.flexflowweb.com/form-test`);
-          const scanResponse = await fetch(`${req.url.split('/api')[0]}/api/scan/site-options`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ url: 'https://www.flexflowweb.com/form-test' })
-          });
-          
-          if (scanResponse.ok) {
-            const scanData = await scanResponse.json();
-            const pageOptions = scanData.selectElements || [];
-            selectOptions.push(...pageOptions);
-            console.log(`[Dynamic Options] ✅ Found ${pageOptions.length} select elements from hard-coded URL`);
+        // Strategy 3: ALWAYS scan pages for select options (parallel to API calls)
+        // Don't wait for APIs to fail - get options from actual HTML
+        console.log(`[Dynamic Options] 🔄 ALWAYS scanning pages for select options (hybrid approach)...`);
+
+        // Scan common form pages for this site IN PARALLEL with API calls
+        try {
+          let tokenRecord = await getTokenForSite(siteId);
+          if (!tokenRecord) {
+            throw new Error(`No token found for site ${siteId}`);
           }
-        }
-        
-        let tokenRecord = await getTokenForSite(siteId);
-        if (!tokenRecord) {
-          throw new Error(`No token found for site ${siteId}`);
-        }
-        const siteInfoResponse = await fetch(`https://api.webflow.com/v2/sites/${siteId}`, {
-              headers: {
-                'Authorization': `Bearer ${tokenRecord.token}`,
-                'Accept-Version': '2.0.0',
-                'Content-Type': 'application/json',
-              },
-            });
+          
+          const siteInfoResponse = await fetch(`https://api.webflow.com/v2/sites/${siteId}`, {
+            headers: {
+              'Authorization': `Bearer ${tokenRecord.token}`,
+              'Accept-Version': '2.0.0',
+              'Content-Type': 'application/json',
+            },
+          });
 
-            if (siteInfoResponse.ok) {
-              const siteInfo = await siteInfoResponse.json();
-              // Get the correct base URL
-              let baseUrl = siteInfo.publishedUrl;
+          if (siteInfoResponse.ok) {
+            const siteInfo = await siteInfoResponse.json();
+            // Get the correct base URL
+            let baseUrl = siteInfo.publishedUrl;
+            
+            if (!baseUrl && siteInfo.shortName) {
+              baseUrl = `https://${siteInfo.shortName}.webflow.io`;
+            }
+            
+            if (!baseUrl && siteInfo.domain) {
+              baseUrl = `https://${siteInfo.domain}`;
+            }
+            
+            // Fallback for known sites
+            if (!baseUrl && siteId === '652b10ed79cbf4ed07a349ed') {
+              baseUrl = 'https://www.flexflowweb.com';
+            }
+            
+            // Force the correct URL for known sites
+            if (siteId === '652b10ed79cbf4ed07a349ed') {
+              baseUrl = 'https://www.flexflowweb.com';
+            }
+            
+            console.log(`[Dynamic Options] 🔍 Base URL for scanning: ${baseUrl}`);
+            
+            // Scan common form pages
+            const commonFormPages = ['/form-test', '/contact', '/contact-us', '/inquiry', '/form'];
+            
+            for (const pagePath of commonFormPages) {
+              const pageUrl = `${baseUrl}${pagePath}`;
+              console.log(`[Dynamic Options] 🔍 Scanning: ${pageUrl}`);
               
-              if (!baseUrl && siteInfo.shortName) {
-                baseUrl = `https://${siteInfo.shortName}.webflow.io`;
-              }
-              
-              if (!baseUrl && siteInfo.domain) {
-                baseUrl = `https://${siteInfo.domain}`;
-              }
-              
-              // Fallback for known sites
-              if (!baseUrl && siteId === '652b10ed79cbf4ed07a349ed') {
-                baseUrl = 'https://www.flexflowweb.com';
-              }
-              
-              // Force the correct URL for known sites
-              if (siteId === '652b10ed79cbf4ed07a349ed') {
-                baseUrl = 'https://www.flexflowweb.com';
-              }
-              
-              console.log(`[Dynamic Options] 🔍 Base URL: ${baseUrl}`);
-              
-              // Scan common form pages
-              const commonFormPages = ['/form-test', '/contact', '/contact-us', '/inquiry', '/form'];
-              
-              for (const pagePath of commonFormPages) {
-                const pageUrl = `${baseUrl}${pagePath}`;
-                console.log(`[Dynamic Options] 🔍 Scanning: ${pageUrl}`);
-                
-                try {
-                  const scanResponse = await fetch(`${req.url.split('/api')[0]}/api/scan/site-options`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ url: pageUrl })
-                  });
+              try {
+                const scanResponse = await fetch(`${req.url.split('/api')[0]}/api/scan/site-options`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ url: pageUrl })
+                });
 
-                  if (scanResponse.ok) {
-                    const scanData = await scanResponse.json();
-                    const pageOptions = scanData.selectElements || [];
-                    if (pageOptions.length > 0) {
-                      selectOptions.push(...pageOptions);
-                      console.log(`[Dynamic Options] ✅ Found ${pageOptions.length} select elements on ${pagePath}`);
-                      break; // Found options, stop scanning other pages
-                    }
+                if (scanResponse.ok) {
+                  const scanData = await scanResponse.json();
+                  const pageOptions = scanData.selectElements || [];
+                  if (pageOptions.length > 0) {
+                    selectOptions.push(...pageOptions);
+                    console.log(`[Dynamic Options] ✅ Found ${pageOptions.length} select elements on ${pagePath}`);
+                    console.log(`[Dynamic Options] 🔍 Scanned options:`, pageOptions.map((opt: any) => ({ id: opt.id, name: opt.name, optionsCount: opt.options?.length || 0 })));
+                    // Don't break - collect options from all pages
                   }
-                } catch (scanError) {
-                  console.warn(`[Dynamic Options] Failed to scan ${pageUrl}:`, scanError);
+                } else {
+                  console.log(`[Dynamic Options] ⚠️ Scan failed for ${pageUrl}: ${scanResponse.status}`);
                 }
+              } catch (scanError) {
+                console.warn(`[Dynamic Options] Failed to scan ${pageUrl}:`, scanError);
               }
             }
-          } catch (siteError) {
-            console.warn(`[Dynamic Options] Failed to get site info:`, siteError);
           }
-          
-          console.log(`[Dynamic Options] ✅ Total select options found from page scanning: ${selectOptions.length}`);
+        } catch (siteError) {
+          console.warn(`[Dynamic Options] Failed to get site info for scanning:`, siteError);
         }
+
+        console.log(`[Dynamic Options] ✅ Total select options found from HTML scanning: ${selectOptions.length}`);
 
     // Enhance Webflow forms with dynamic options
     console.log(`[Dynamic Options] 📊 BEFORE field matching - selectOptions length: ${selectOptions.length}`);
@@ -330,25 +287,52 @@ export async function GET(req: Request) {
               console.log(`[Dynamic Options] 🔍 Total selectOptions available: ${selectOptions.length}`);
               console.log(`[Dynamic Options] 🔍 Available selectOptions:`, selectOptions.map((s: any) => ({ id: s.id, name: s.name, hasOptions: s.options && s.options.length > 0 })));
               
-              // Use smart field matching to find the best match
-              const match = findMatchingElement(field, selectOptions);
-              console.log(`[Dynamic Options] 🔍 Match result:`, match ? `Found "${match.element.name}" (confidence: ${match.confidence})` : 'No match');
+              // Try direct ID match first (fastest and most reliable)
+              let match = null;
+              const directMatch = selectOptions.find((opt: any) => opt.id === fieldId);
+              if (directMatch && directMatch.options && directMatch.options.length > 0) {
+                console.log(`[Dynamic Options] ✅ DIRECT ID MATCH found for ${field.name}`);
+                field.options = directMatch.options;
+                field.technicalId = directMatch.id;
+                field.liveName = directMatch.name;
+                field.confidence = 1.0;
+              } else {
+                // Try direct name match
+                const nameMatch = selectOptions.find((opt: any) => 
+                  opt.name === field.name || opt.name === fieldData.name || opt.name === fieldData.displayName
+                );
+                if (nameMatch && nameMatch.options && nameMatch.options.length > 0) {
+                  console.log(`[Dynamic Options] ✅ DIRECT NAME MATCH found for ${field.name}`);
+                  field.options = nameMatch.options;
+                  field.technicalId = nameMatch.id;
+                  field.liveName = nameMatch.name;
+                  field.confidence = 0.9;
+                } else {
+                  // Fall back to smart fuzzy matching
+                  match = findMatchingElement(field, selectOptions);
+                  console.log(`[Dynamic Options] 🔍 Smart match result:`, match ? `Found "${match.element.name}" (confidence: ${match.confidence})` : 'No match');
+                  
+                  if (match) {
+                    // Create smart field mapping
+                    const smartField = createFieldMapping(field, match);
+                    
+                    // Update field with smart mapping data
+                    field.technicalId = smartField.technicalId;
+                    field.liveName = smartField.liveName;
+                    field.confidence = smartField.confidence;
+                    field.aliases = smartField.aliases;
+                    
+                    // Ensure options are properly set
+                    field.options = match.element.options || [];
+                    
+                    console.log(`[Dynamic Options] ✅ SMART MATCH: "${field.name}" -> "${match.element.name}" (confidence: ${match.confidence})`);
+                  }
+                }
+              }
               
-              if (match) {
-                // Create smart field mapping
-                const smartField = createFieldMapping(field, match);
-                
-                // Update field with smart mapping data
-                field.technicalId = smartField.technicalId;
-                field.liveName = smartField.liveName;
-                field.confidence = smartField.confidence;
-                field.aliases = smartField.aliases;
-                
-                // Ensure options are properly set
-                field.options = match.element.options || [];
-                
-                console.log(`[Dynamic Options] ✅ SMART MATCH: "${field.name}" -> "${match.element.name}" (confidence: ${match.confidence})`);
-                console.log(`[Dynamic Options] ✅ Options found:`, field.options);
+              // Log final result
+              if (field.options && field.options.length > 0) {
+                console.log(`[Dynamic Options] ✅ Options found for ${field.name}:`, field.options);
                 console.log(`[Dynamic Options] 🔍 Field after update:`, {
                   name: field.name,
                   type: field.type,
@@ -356,7 +340,7 @@ export async function GET(req: Request) {
                   optionsLength: field.options?.length || 0
                 });
               } else {
-                console.log(`[Dynamic Options] ❌ No smart match found for ${field.name}`);
+                console.log(`[Dynamic Options] ❌ No match found for ${field.name}`);
                 console.log(`[Dynamic Options] 🔍 Field details:`, {
                   name: field.name,
                   id: fieldId,
@@ -369,7 +353,7 @@ export async function GET(req: Request) {
                   field.options = fieldData.options.map((option: any) =>
                     typeof option === 'string' ? option : (option.label || option.value || option.name || option)
                   );
-                  console.log(`[Dynamic Options] Using Webflow options for ${field.name}:`, field.options);
+                  console.log(`[Dynamic Options] Using Webflow API options for ${field.name}:`, field.options);
                 } else {
                   console.log(`[Dynamic Options] No options available for ${field.name} - select field without options`);
                   field.options = []; // Empty array instead of undefined

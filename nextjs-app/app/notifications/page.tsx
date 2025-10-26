@@ -780,26 +780,28 @@ ${fieldsList}
     
     setIsLoadingForms(true);
     try {
-      // Use notifications endpoint which fetches from Xano with user_id filtering
-      const formsResp = await safeFetch(`/api/forms/notifications?siteId=${encodeURIComponent(siteId)}`);
+      // Use dynamic-options endpoint to get forms WITH select field options
+      const cacheBuster = `&_refresh=${Date.now()}`;
+      const formsResp = await safeFetch(`/api/forms/dynamic-options?siteId=${encodeURIComponent(siteId)}${cacheBuster}`);
       if (formsResp && formsResp.ok) {
         const formsData = await formsResp.json();
-        // Response already has forms array, use it directly
         const formsArray = formsData.forms || [];
         
-        console.log(`[Notifications] Loaded ${formsArray.length} forms from notifications endpoint`);
+        console.log(`[Notifications] Loaded ${formsArray.length} forms from dynamic-options endpoint with field options`);
         
         if (formsArray.length > 0) {
           const transformedForms = formsArray.map((form: any) => ({
-            id: form.html_form_id || form.id,  // Use html_form_id from Xano
+            id: form.id,
             name: form.name,
             fields: form.fields || []
           }));
           
-          // Filter out test forms (backend already filters utility pages)
+          // Filter out test forms
           const filteredForms = transformedForms.filter((form: any) =>
             !form.name.toLowerCase().includes('test')
           );
+          
+          console.log('[Notifications] ✅ Forms loaded with select field options:', filteredForms.length);
           
           setForms(filteredForms);
           setIsLoadingForms(false);
@@ -811,12 +813,12 @@ ${fieldsList}
             localStorage.setItem('roolify_forms_cache', JSON.stringify(newCache));
           }
         } else {
-          console.log('[Notifications] No forms found in Xano for this site');
+          console.log('[Notifications] No forms found for this site');
           setForms([]);
           setIsLoadingForms(false);
         }
       } else {
-        console.log('[Notifications] Failed to fetch forms from notifications endpoint');
+        console.log('[Notifications] Failed to fetch forms from dynamic-options endpoint');
         setForms([]);
         setIsLoadingForms(false);
       }
@@ -836,8 +838,8 @@ ${fieldsList}
       const cacheBuster = `&_refresh=${Date.now()}`;
       console.log('[Notifications Refresh] Force refreshing with cache buster');
 
-      // Use notifications endpoint which fetches from Xano with user_id filtering
-      const formsResp = await safeFetch(`/api/forms/notifications?siteId=${encodeURIComponent(siteId)}${cacheBuster}`);
+      // Use dynamic-options endpoint to get forms WITH select field options
+      const formsResp = await safeFetch(`/api/forms/dynamic-options?siteId=${encodeURIComponent(siteId)}${cacheBuster}`);
       if (formsResp && formsResp.ok) {
         const formsData = await formsResp.json();
         const formsArray = formsData.forms || [];
@@ -845,13 +847,13 @@ ${fieldsList}
         console.log('[Notifications Refresh] Found forms:', formsArray.length);
         formsArray.forEach((form: any) => {
           console.log(`[Notifications Refresh] Form "${form.name}" has ${form.fields?.length || 0} fields:`,
-            form.fields?.map((f: any) => f.displayName || f.name));
+            form.fields?.map((f: any) => ({ name: f.name, type: f.type, hasOptions: f.options?.length > 0 })));
         });
 
         if (formsArray.length > 0) {
           // Transform forms to match the expected format
           const transformedForms = formsArray.map((form: any) => ({
-            id: form.html_form_id || form.id, // Use html_form_id from Xano
+            id: form.id,
             name: form.name,
             fields: form.fields || []
           }));
@@ -859,6 +861,9 @@ ${fieldsList}
           const filteredForms = transformedForms.filter((form: any) =>
             !form.name.toLowerCase().includes('test')
           );
+          
+          console.log('[Notifications Refresh] ✅ Forms refreshed with select field options:', filteredForms.length);
+          
           setForms(filteredForms);
           // Update cache with refreshed forms
           const newCache = { ...globalFormCache, [siteId]: filteredForms };
@@ -873,11 +878,11 @@ ${fieldsList}
           setIsRefreshing(false);
           return;
         } else {
-          // No forms found in Xano
+          // No forms found
           setForms([]);
           addToast({ 
             type: 'info', 
-            message: 'No forms found in Xano. Please sync forms from the dashboard first.' 
+            message: 'No forms found for this site.' 
           });
           setLastSuccessfulRefresh(Date.now());
           setIsRefreshing(false);
